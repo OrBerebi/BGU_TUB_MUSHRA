@@ -128,10 +128,10 @@ class gui(QtWidgets.QMainWindow):
         self.Mute_all.setObjectName("Mute_all")
         self.Mute_all.setText('(M)ute')
 
-        self.Calibrate = QtWidgets.QPushButton(self.centralwidget)
-        self.Calibrate.setFixedSize(100, 30)
-        self.Calibrate.setObjectName("Calibrate")
-        self.Calibrate.setText('(C)alibrate')
+        #self.Calibrate = QtWidgets.QPushButton(self.centralwidget)
+        #self.Calibrate.setFixedSize(100, 30)
+        #self.Calibrate.setObjectName("Calibrate")
+        #self.Calibrate.setText('(C)alibrate')
 
         self.current_playing_label = QtWidgets.QLabel(self.centralwidget)
         self.current_playing_label.setObjectName("current_playing_label")
@@ -140,7 +140,7 @@ class gui(QtWidgets.QMainWindow):
         self.current_playing_label.setStyleSheet("color: yellow; font-size: 14pt; font-weight: bold;")
         
         vlayout.addWidget(self.current_playing_label)  # add it above Calibrate
-        vlayout.addWidget(self.Calibrate)
+        #vlayout.addWidget(self.Calibrate)
         vlayout.addWidget(self.Mute_all)
         vlayout.addWidget(self.Ref_btn)
         #vlayout.addItem(QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))

@@ -101,56 +101,40 @@ class MushraMainWindow(MainWindow):
                                                 self.set_participant_infos(5))
 
         self._ui.start_btn.clicked.connect(self.finish_login)
-        self._ui.calibrate_btn.clicked.connect(
-            self._ssr_handler.calibrate_tracker)
+        #self._ui.calibrate_btn.clicked.connect(self._ssr_handler.calibrate_tracker)
 
         self.checked_participant_infos = list([0, 0, 0, 0, 0, 0])
 
     def finish_login(self):
         if not self.debug:
 
-            if self._ssr_handler._is_calibrated:
-                # ✅ Always collect values from comboboxes, no click-checking
-                self.checked_participant_infos[0] = self._ui.age_combobox.currentText()
-                self.checked_participant_infos[1] = self._ui.gender_combobox.currentText()
-                self.checked_participant_infos[2] = self._ui.general_exp_combobox.currentText()
-                self.checked_participant_infos[3] = self._ui.binaural_exp_combobox.currentText()
-                self.checked_participant_infos[4] = self._ui.health_status_combobox.currentText()
-                self.checked_participant_infos[5] = self._ui.hearing_problems_combobox.currentText()
+            #if self._ssr_handler._is_calibrated:
+            # ✅ Always collect values from comboboxes, no click-checking
+            self.checked_participant_infos[0] = self._ui.age_combobox.currentText()
+            self.checked_participant_infos[1] = self._ui.gender_combobox.currentText()
+            self.checked_participant_infos[2] = self._ui.general_exp_combobox.currentText()
+            self.checked_participant_infos[3] = self._ui.binaural_exp_combobox.currentText()
+            self.checked_participant_infos[4] = self._ui.health_status_combobox.currentText()
+            self.checked_participant_infos[5] = self._ui.hearing_problems_combobox.currentText()
 
-                self._experiment_handler.set_participant_infos(self.checked_participant_infos)
+            self._experiment_handler.set_participant_infos(self.checked_participant_infos)
 
-                message_box = QtWidgets.QMessageBox()
-                message_box.setGeometry(QtCore.QRect(700, 500, 151, 32))
-                message_box.move(
-                    int(self._monitor.left() / 1.7), int(self._monitor.top() * 1.5))
+            message_box = QtWidgets.QMessageBox()
+            message_box.setGeometry(QtCore.QRect(700, 500, 151, 32))
+            message_box.move(
+                int(self._monitor.left() / 1.7), int(self._monitor.top() * 1.5))
 
-                if self._language == 'english':
-                    message = 'Thanks for participating in our listening experiment\nThe experiment starts now.'
-                elif self._language == 'german':
-                    message = 'Danke für die Teilnahme an unserem Hörversuch\nDer Versuch startet nun.'
-                else:
-                    message = ''
-                QtWidgets.QMessageBox.information(
-                    message_box, 'Info', message,
-                    QtWidgets.QMessageBox.Ok)
-
-                self.start_main_experiment_screen()
-
+            if self._language == 'english':
+                message = 'Thanks for participating in our listening experiment\nThe experiment starts now.'
+            elif self._language == 'german':
+                message = 'Danke für die Teilnahme an unserem Hörversuch\nDer Versuch startet nun.'
             else:
-                message_box = QtWidgets.QMessageBox()
-                message_box.setGeometry(QtCore.QRect(700, 500, 151, 32))
-                message_box.move(int(self._monitor.left() / 1.7),
-                                 int(self._monitor.top() * 1.5))
+                message = ''
+            QtWidgets.QMessageBox.information(
+                message_box, 'Info', message,
+                QtWidgets.QMessageBox.Ok)
 
-                if self._language == 'english':
-                    message = 'Please calibrate tracker before starting the experiment.'
-                elif self._language == 'german':
-                    message = 'Bitte kalibriere den Head Tracker bevor du das Experiment startest.'
-                else:
-                    message = ''
-                QtWidgets.QMessageBox.warning(
-                    message_box, 'Error', message, QtWidgets.QMessageBox.Ok)
+            self.start_main_experiment_screen()
 
         else:
             self.start_main_experiment_screen()
@@ -340,16 +324,16 @@ class MushraMainWindow(MainWindow):
             self._ui.Mute_all.setVisible(True)
 
             # Calibrate button
-            try:
-                self._ui.Calibrate.clicked.disconnect()
-            except TypeError:
-                pass
-            self._ui.Calibrate.clicked.connect(self._ssr_handler.calibrate_tracker)
-            self._ui.Calibrate.setVisible(True)
+            #try:
+            #    self._ui.Calibrate.clicked.disconnect()
+            #except TypeError:
+            #    pass
+            #self._ui.Calibrate.clicked.connect(self._ssr_handler.calibrate_tracker)
+            #self._ui.Calibrate.setVisible(True)
         else:
             self._ui.Ref_btn.setVisible(False)
             self._ui.Mute_all.setVisible(False)
-            self._ui.Calibrate.setVisible(False)
+            #self._ui.Calibrate.setVisible(False)
 
 
         for btn, slider in zip(self._ui.play_pause_btns,

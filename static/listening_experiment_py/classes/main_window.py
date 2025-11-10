@@ -51,8 +51,7 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda: self.set_participant_infos(3))
 
         self._ui.start_btn.clicked.connect(self.finish_login)
-        self._ui.calibrate_btn.clicked.connect(
-            self._ssr_handler.calibrate_tracker)
+        #self._ui.calibrate_btn.clicked.connect(self._ssr_handler.calibrate_tracker)
 
         self.checked_participant_infos = list([0, 0, 0, 0])
 

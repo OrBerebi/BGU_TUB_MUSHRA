@@ -217,13 +217,13 @@ class Welcome_gui(object):
             QtWidgets.QSizePolicy.Fixed))
 
         hlayout = QtWidgets.QHBoxLayout()
-        self.calibrate_btn = QtWidgets.QPushButton(self.centralwidget)
-        self.calibrate_btn.setFixedSize(QtCore.QSize(110, 30))
-        self.calibrate_btn.setObjectName("calibrate_btn")
+        #self.calibrate_btn = QtWidgets.QPushButton(self.centralwidget)
+        #self.calibrate_btn.setFixedSize(QtCore.QSize(110, 30))
+        #self.calibrate_btn.setObjectName("calibrate_btn")
         self.start_btn = QtWidgets.QPushButton(self.centralwidget)
         self.start_btn.setFixedSize(QtCore.QSize(110, 30))
         self.start_btn.setObjectName("start_btn")
-        hlayout.addWidget(self.calibrate_btn)
+        #hlayout.addWidget(self.calibrate_btn)
         hlayout.addWidget(self.start_btn)
         top_layout.addLayout(hlayout)
 
@@ -233,7 +233,7 @@ class Welcome_gui(object):
         self.age_label.raise_()
         self.gender_label.raise_()
         self.gender_combobox.raise_()
-        self.calibrate_btn.raise_()
+        #self.calibrate_btn.raise_()
 
         main_layout.addLayout(top_layout)
         # add footer
@@ -282,7 +282,7 @@ class Welcome_gui(object):
             self.hearing_problems_combobox.setItemText(2, _translate("SAQI_welcome_gui", "left"))
             self.hearing_problems_combobox.setItemText(3, _translate("SAQI_welcome_gui", "right"))
             self.hearing_problems_combobox.adjustSize()
-            self.calibrate_btn.setText(_translate("SAQI_welcome_gui", "calibrate"))
+            #self.calibrate_btn.setText(_translate("SAQI_welcome_gui", "calibrate"))
 
         elif language == 'german':
             self.start_btn.setText(_translate("SAQI_welcome_gui", "Start"))
@@ -314,5 +314,5 @@ class Welcome_gui(object):
             self.binaural_exp_combobox.setItemText(1, _translate("SAQI_welcome_gui", "Nein"))
             self.general_exp_label.setText(_translate("SAQI_welcome_gui",
                                                  "<html><head/><body><p>Haben Sie bereits an einem Hörversuch teilgenommen </p><p>und wenn ja an wie vielen?</p></body></html>"))
-            self.calibrate_btn.setText(_translate("SAQI_welcome_gui", "Kalibrieren"))
+            #self.calibrate_btn.setText(_translate("SAQI_welcome_gui", "Kalibrieren"))
 
