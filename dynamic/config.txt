@@ -1,0 +1,4 @@
+stimuli_ssr_ids = [[2,0,0],[3,0,0]]
+hidden_references_ids = [[1,0,0]]
+attributes = ["Overall Quality","Spatial Quality","Timbre Quality"]
+gifs_paths = ["/Users/orberebi/Documents/GitHub/TUB-BGU-colab/MUSHRA_2025/SSR_scene/gifs/median_plane_rotation.gif"]

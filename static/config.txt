@@ -1,0 +1,41 @@
+Qualities: Overall Quality, Spatial Quality, Timbre Quality
+
+Timbre Quality
+reference: 1
+evaluated signal: 2
+evaluated signal: 3
+
+Timbre Quality
+reference: 4
+evaluated signal: 5
+evaluated signal: 6
+
+Timbre Quality
+reference: 7
+evaluated signal: 8
+evaluated signal: 9
+
+Timbre Quality
+reference: 10
+evaluated signal: 11
+evaluated signal: 12
+
+Spatial Quality
+reference: 1
+evaluated signal: 2
+evaluated signal: 3
+
+Spatial Quality
+reference: 4
+evaluated signal: 5
+evaluated signal: 6
+
+Spatial Quality
+reference: 7
+evaluated signal: 8
+evaluated signal: 9
+
+Spatial Quality
+reference: 10
+evaluated signal: 11
+evaluated signal: 12
