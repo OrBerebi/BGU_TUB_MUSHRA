@@ -11,7 +11,7 @@ from collections import defaultdict
 class Handler(ExperimentHandler):
     def __init__(self, ssr_ids, num_stimuli_per_page, attributes,
                  base_path='listening_experiment', debug=False,
-                 do_reset=False, hidden_references=None,gifs_paths=None, groups=None):
+                 do_reset=False, hidden_references=None,gifs_paths=None,sample_lengths=None, groups=None):
         super().__init__(ssr_ids, base_path, debug)
 
         self.num_stimuli_per_page = num_stimuli_per_page
@@ -32,6 +32,7 @@ class Handler(ExperimentHandler):
                               # Each idx indicates the last ssr idx of the corresponing group
         self.groups_complete = 0
         self.gifs_paths = gifs_paths
+        self.sample_lengths = sample_lengths
         self.randomized_gifs_paths = list()
 
         self._init(do_reset)
@@ -174,6 +175,11 @@ class Handler(ExperimentHandler):
         else:
             curr_gif_path = None
 
+        if self.current_trial < len(self.sample_lengths):
+            curr_sample_lengths = self.sample_lengths[self.current_trial]
+        else:
+            curr_sample_lengths = None
+
 
         if curr_attribute_ids.size > 0:
             atr_id = curr_attribute_ids[0]
@@ -186,7 +192,7 @@ class Handler(ExperimentHandler):
         else:
             ref_id = np.array([], dtype=int)
 
-        return curr_ssr_ids, art_sting, ref_id, curr_gif_path
+        return curr_ssr_ids, art_sting, ref_id, curr_gif_path, curr_sample_lengths
 
         
         

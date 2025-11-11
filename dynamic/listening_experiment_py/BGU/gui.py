@@ -93,6 +93,17 @@ class gui(QtWidgets.QMainWindow):
         self.movie.finished.connect(self.rewind_gif)
 
         
+        self.sample_rate = 48000  # Hz
+        self.movie.setSpeed(100) # IMPORTANT: Set to 100% *before* getting delay
+        self.movie.jumpToFrame(0)
+        self.original_gif_delay_ms = self.movie.nextFrameDelay()
+        if self.original_gif_delay_ms <= 0:
+            self.original_gif_delay_ms = 100 # Fallback for invalid GIFs
+            
+        print(f"Cached original GIF delay: {self.original_gif_delay_ms} ms")
+        self.update_gif_speed(236540)
+        
+        """
         audio_samples = 236540
         sample_rate = 48000  # Hz
         audio_duration_sec = audio_samples / sample_rate
@@ -109,6 +120,7 @@ class gui(QtWidgets.QMainWindow):
         original_delay_ms = self.movie.nextFrameDelay()  # typical frame delay in GIF
         speed_factor = int(original_delay_ms / frame_delay_ms * 100)
         self.movie.setSpeed(speed_factor)  # percentage
+        """
 
 
         #self.movie.start()
@@ -228,6 +240,73 @@ class gui(QtWidgets.QMainWindow):
     def start_gif(self):
         if hasattr(self, '_ui') and hasattr(self._ui, 'movie') and self._ui.movie is not None:
             self._ui.movie.start()
+
+    def update_gif_speed(self, audio_samples):
+        """
+        Recalculates and sets the QMovie speed to match the
+        duration of the given audio sample count.
+        """
+        
+        # --- Safety checks ---
+        if not self.movie:
+            print("Error: Movie is not loaded. Cannot update speed.")
+            return
+
+        gif_frames = self.movie.frameCount()
+        if gif_frames <= 0:
+            print(f"Error: Movie has {gif_frames} frames. Cannot calculate speed.")
+            # Set a default speed and exit
+            self.movie.setSpeed(100) # 100% = normal
+            return
+
+        if audio_samples <= 0:
+            print(f"Error: Invalid audio_samples ({audio_samples}).")
+            self.movie.setSpeed(100) # 100% = normal
+            return
+            
+        # --- Get original GIF timing ---
+        # nextFrameDelay() gives the delay for the *current* frame.
+        # If the GIF has variable delays, this might not be perfect.
+        # But we'll follow your original logic.
+        #original_delay_ms = self.movie.nextFrameDelay()
+        #self.original_gif_delay_ms
+        if self.original_gif_delay_ms <= 0:
+            # Fallback if delay is 0 or invalid (e.g., movie not started)
+            # A typical default GIF delay is 100ms
+            self.original_gif_delay_ms = 100 
+            print(f"Warning: Got invalid original delay. Assuming {self.original_gif_delay_ms} ms.")
+
+        # --- Perform the calculation ---
+        audio_duration_sec = audio_samples / self.sample_rate
+        print(f"Audio duration: {audio_duration_sec:.3f} seconds for {audio_samples} samples.")
+
+        # Calculate the *target* delay per frame to match the audio
+        target_frame_delay_sec = audio_duration_sec / gif_frames
+        target_frame_delay_ms = target_frame_delay_sec * 1000
+
+        if target_frame_delay_ms <= 0:
+            print(f"Error: Calculated target delay is {target_frame_delay_ms:.2f} ms. Using default speed.")
+            self.movie.setSpeed(100)
+            return
+            
+        print(f"Target frame delay: {target_frame_delay_ms:.2f} ms per frame")
+
+        # --- Calculate and set the new speed factor ---
+        # speed_factor = (original_delay / target_delay) * 100
+        # This tells QMovie how much faster/slower to play.
+        # e.g., if original=100ms and target=200ms, speed=50%
+        # e.g., if original=100ms and target=50ms, speed=200%
+        speed_factor = int(self.original_gif_delay_ms / target_frame_delay_ms * 100)
+
+        if speed_factor <= 0:
+            print(f"Warning: Calculated speed factor is {speed_factor}%. Clamping to 1%.")
+            speed_factor = 1 # QMovie speed must be > 0
+
+        print(f"Setting new GIF speed factor to {speed_factor}%")
+        self.movie.setSpeed(speed_factor)
+        
+
+
 
     def retranslateUi(self, ui):
         _translate = QtCore.QCoreApplication.translate

@@ -58,6 +58,8 @@ def main():
     hidden_references_ids = config.get("hidden_references_ids", [])
     attributes = config.get("attributes", [])
     gifs_paths = config.get("gifs_paths", [])
+    sample_lengths = config.get("sample_lengths", [])
+
 
     
     # init app
@@ -82,7 +84,7 @@ def main():
                           debug=debug,
                           do_reset=do_reset,
                           hidden_references=hidden_references_ids,
-                          gifs_paths = gifs_paths)
+                          gifs_paths = gifs_paths,sample_lengths= sample_lengths)
 
     # init main gui component
     gui_comp = MushraMainWindow(ssr_handler=ssr_handler,

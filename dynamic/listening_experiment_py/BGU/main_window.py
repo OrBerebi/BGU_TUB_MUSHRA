@@ -286,7 +286,7 @@ class MushraMainWindow(MainWindow):
 
     def update_gui(self):
         # update gui and register callbacks
-        self.ssr_ids, curr_atr,self.ref_ssr_id, self.curr_gif_path  = self._experiment_handler.get_current_ssr_ids()
+        self.ssr_ids, curr_atr,self.ref_ssr_id, self.curr_gif_path,self.curr_sample_lengths  = self._experiment_handler.get_current_ssr_ids()
         #self._ssr_handler.def_ssr_handler_gui_link(self._ui)
         
         
@@ -370,11 +370,13 @@ class MushraMainWindow(MainWindow):
             self._ui.movie.setFileName(self.curr_gif_path)
             self._ui.movie.setScaledSize(self._ui.gif_label.size())
             self._ui.movie.jumpToFrame(0)
+            self._ui.update_gif_speed(self.curr_sample_lengths)
         else:
             self._ui.gif_label.setVisible(False)
             self._ui.current_playing_label.setVisible(False)
 
-
+        
+        
 
         if self.debug:
             print(self.ssr_ids)
