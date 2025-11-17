@@ -8,6 +8,27 @@ from .. GUI.goodbye_gui import goodbye_gui
 from .. GUI.utils import FooterTUB_THK_Chalmers
 from .gui import gui
 from .. classes.main_window import MainWindow
+import os
+import sys
+# 1. Get the absolute path to this script (main_window.py)
+#    e.g., /path/to/project/listening_experiment_py/classes/main_window.py
+script_path = os.path.abspath(__file__)
+
+# 2. Get the directory containing this script
+#    e.g., /path/to/project/listening_experiment_py/classes
+current_dir = os.path.dirname(script_path)
+
+# 3. Go up two levels to find the project's root directory
+#    Level 1 up: .../listening_experiment_py
+#    Level 2 up: /path/to/project/
+project_root = os.path.dirname(os.path.dirname(current_dir))
+
+# 4. Add this project root to the system's import path
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+# 5. Now you can import from 'results_analysis' as if you were at the root
+from results_analysis.aggregate_results import aggregate_mat_results
 
 
 
@@ -395,6 +416,23 @@ class MushraMainWindow(MainWindow):
             self._ui.rating_sliders[id].setValue(new_value)
 
     def close_app(self):
+        print("Starting data aggregation...")
+        
+        results_dir = os.path.join(project_root, 'bgu_results', 'results')
+        output_csv = os.path.join(project_root, 'bgu_results', 'aggregated_results.csv')
+
+        try:
+            # Call the function directly with the full, absolute paths
+            aggregate_mat_results(results_dir, output_csv)
+            print(f"Aggregation complete. Data saved to {output_csv}")
+            
+        except FileNotFoundError:
+            print(f"ERROR: Could not find results directory at {results_dir}")
+        except Exception as e:
+            print(f"ERROR: Data aggregation failed: {e}")
+            # You could show this error in a GUI pop-up
+
+
         if self._ssr_handler is not None:
             self._ssr_handler.destroy_handler()
         self.close()

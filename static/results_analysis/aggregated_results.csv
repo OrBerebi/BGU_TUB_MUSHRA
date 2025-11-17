@@ -1,0 +1,3 @@
+subject_id,participant_id,age,gender,ListeningExperimentExperience,BinauralExperience,HealthStatus,HearingProblems,trial_0_id_1,trial_0_id_2,trial_0_id_3,trial_1_id_4,trial_1_id_5,trial_1_id_6,trial_2_id_7,trial_2_id_8,trial_2_id_9,trial_3_id_10,trial_3_id_11,trial_3_id_12,trial_4_id_1,trial_4_id_2,trial_4_id_3,trial_5_id_4,trial_5_id_5,trial_5_id_6,trial_6_id_7,trial_6_id_8,trial_6_id_9,trial_7_id_10,trial_7_id_11,trial_7_id_12
+0,0,32,male,no,yes,excellent,no,100.0,25.0,75.0,100.0,75.0,0.0,100.0,25.0,90.0,100.0,75.0,25.0,100.0,0.0,75.0,100.0,92.0,25.0,100.0,25.0,100.0,100.0,100.0,0.0
+1,1,33,male,>5,yes,excellent,no,100.0,25.0,75.0,100.0,25.0,75.0,100.0,25.0,75.0,100.0,25.0,75.0,100.0,25.0,100.0,100.0,0.0,75.0,100.0,25.0,100.0,100.0,25.0,75.0
