@@ -1,3 +1,0 @@
-subject_id,participant_id,age,gender,ListeningExperimentExperience,BinauralExperience,HealthStatus,HearingProblems,trial_0_id_1,trial_0_id_2,trial_0_id_3,trial_1_id_4,trial_1_id_5,trial_1_id_6
-0,0,32,male,>5,yes,excellent,no,100.0,25.0,75.0,100.0,75.0,25.0
-1,1,33,male,>5,yes,excellent,no,100.0,0.0,75.0,100.0,0.0,100.0

@@ -16,7 +16,6 @@ function [eqMultValue, optError, optLoud, orgLoud] = LoudnessEq_Binaural(audioDi
 %   optLoud     - loudness after equalization
 %   orgLoud     - original loudness before equalization
 %
-% Adapted by ChatGPT from Zamir Ben-Hur’s LoudnessEqOptimize
 % October 2025
 %
 % --- Get all wav files in directory ---

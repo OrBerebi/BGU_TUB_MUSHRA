@@ -1,318 +1,293 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtCore, QtWidgets, QtSvg
+from PyQt5 import QtCore, QtWidgets, QtGui
 from .. GUI.utils import Footer
-
 
 class Welcome_gui(object):
     def setupUi(self, ui, experiment_name, language='english', footer=None):
         """
-        Listening Experiment Py: SAQI - A Spatial Audio Inventory
-
-        (C) 2021 by Tim Lübeck
-                TH Köln - University of Applied Sciences
-                Institute of Communications Engineering
-                Department of Acoustics and Audio Signal Processing
-
-        Parameters
-        ----------
-        SAQI_welcome_gui
-        language
+        Modified Welcome GUI based on 'AK_Soziodemographie_englisch.pdf'
         """
         if footer is None:
             footer = Footer(experiment_name=experiment_name)
 
         ui.setObjectName(experiment_name)
-        ui.resize(1024, 768)  # IPad 1.gen display dimensions 1024 x 768
+        ui.resize(1024, 768)
 
         self.centralwidget = QtWidgets.QWidget(ui)
         self.centralwidget.setObjectName("centralwidget")
 
+        # --- Main Layout ---
+        # We use a main layout for the central widget
         main_layout = QtWidgets.QVBoxLayout(self.centralwidget)
 
+        # Header Separator
         Separador = QtWidgets.QFrame()
         Separador.setFrameShape(QtWidgets.QFrame.HLine)
-        Separador.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                QtWidgets.QSizePolicy.Fixed)
         Separador.setLineWidth(10)
         main_layout.addWidget(Separador)
 
-        # draw Top layout
-        top_layout = QtWidgets.QVBoxLayout()
-        top_layout.addItem(QtWidgets.QSpacerItem(
-            20, 20, QtWidgets.QSizePolicy.Expanding,
-            QtWidgets.QSizePolicy.Fixed))
-
-        hlayout = QtWidgets.QHBoxLayout()
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed))
+        # Title / Task Label
         self.task_label = QtWidgets.QLabel(self.centralwidget)
-        self.task_label.setGeometry(QtCore.QRect(50, 80, 521, 91))
-        self.task_label.setObjectName("task_label")
         self.task_label.setStyleSheet(f"color: white; font-size: 18pt")
-        hlayout.addWidget(self.task_label)
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 30, QtWidgets.QSizePolicy.Expanding,
-            QtWidgets.QSizePolicy.Fixed))
-        top_layout.addLayout(hlayout)
-        Separador = QtWidgets.QFrame()
-        Separador.setFrameShape(QtWidgets.QFrame.HLine)
-        Separador.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                QtWidgets.QSizePolicy.Fixed)
-        Separador.setLineWidth(10)
-        top_layout.addWidget(Separador)
+        self.task_label.setAlignment(QtCore.Qt.AlignCenter)
+        main_layout.addWidget(self.task_label)
+
+        Separador2 = QtWidgets.QFrame()
+        Separador2.setFrameShape(QtWidgets.QFrame.HLine)
+        Separador2.setLineWidth(10)
+        main_layout.addWidget(Separador2)
+
+        # --- SCROLL AREA SETUP ---
+        # Because the new PDF has many questions, we need a scroll area
+        self.scroll_area = QtWidgets.QScrollArea(self.centralwidget)
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setFrameShape(QtWidgets.QFrame.NoFrame)
         
-        # age 
-        hlayout = QtWidgets.QHBoxLayout()
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed))
-        self.age_label = QtWidgets.QLabel(self.centralwidget)
-        self.age_label.setGeometry(QtCore.QRect(70, 270, 75, 16))
-        self.age_label.setObjectName("age_label")
-        self.age_combobox = QtWidgets.QComboBox(self.centralwidget)
-        self.age_combobox.setMaximumWidth(120)
-        self.age_combobox.setObjectName("age_combobox")
-        hlayout.addWidget(self.age_label)
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed))
-        hlayout.addWidget(self.age_combobox)
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Expanding,
-            QtWidgets.QSizePolicy.Fixed))
-        top_layout.addLayout(hlayout)
+        self.scroll_content = QtWidgets.QWidget()
+        self.form_layout = QtWidgets.QVBoxLayout(self.scroll_content)
+        self.form_layout.setSpacing(20) # Add space between questions
+
+        # =========================================================
+        # SECTION 1: General Information [cite: 4]
+        # =========================================================
         
-        # gender
-        hlayout = QtWidgets.QHBoxLayout()
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed))
-        self.gender_label = QtWidgets.QLabel(self.centralwidget)
-        self.gender_label.setGeometry(QtCore.QRect(70, 230, 75, 16))
-        self.gender_label.setObjectName("gender_label")
-        self.gender_combobox = QtWidgets.QComboBox(self.centralwidget)
-        self.gender_combobox.setMaximumWidth(120)
-        self.gender_combobox.setObjectName("gender_combobox")
-        self.gender_combobox.addItem("")
-        self.gender_combobox.addItem("")
-        self.gender_combobox.addItem("")
-        hlayout.addWidget(self.gender_label)
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed))
-        hlayout.addWidget(self.gender_combobox)
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Expanding,
-            QtWidgets.QSizePolicy.Fixed))
-        top_layout.addLayout(hlayout)
+        # 1.1 Gender [cite: 5]
+        self.gender_label = QtWidgets.QLabel()
+        self.gender_combobox = QtWidgets.QComboBox()
+        self.add_row(self.gender_label, self.gender_combobox)
 
-        # general experience
-        hlayout = QtWidgets.QHBoxLayout()
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed))
-        self.general_exp_label = QtWidgets.QLabel()
-        self.general_exp_label.setGeometry(QtCore.QRect(20, 100, 341, 51))
-        self.general_exp_label.setObjectName("LE_exp_label")
-        self.general_exp_combobox = QtWidgets.QComboBox()
-        self.general_exp_combobox.setMaximumWidth(120)
-        self.general_exp_combobox.setObjectName("LE_exp_combobox")
-        self.general_exp_combobox.addItem("")
-        self.general_exp_combobox.addItem("")
-        self.general_exp_combobox.addItem("")
-        self.general_exp_combobox.addItem("")
-        hlayout.addWidget(self.general_exp_label)
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed))
-        hlayout.addWidget(self.general_exp_combobox)
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Expanding,
-            QtWidgets.QSizePolicy.Fixed))
-        top_layout.addLayout(hlayout)
+        # 1.2 Year Born [cite: 10]
+        self.year_born_label = QtWidgets.QLabel()
+        self.year_born_edit = QtWidgets.QLineEdit()
+        self.year_born_edit.setMaximumWidth(120)
+        self.add_row(self.year_born_label, self.year_born_edit)
 
-        # binaural experience
-        hlayout = QtWidgets.QHBoxLayout()
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed))
-        self.binaural_exp_label = QtWidgets.QLabel()
-        self.binaural_exp_label.setGeometry(QtCore.QRect(20, 185, 341, 21))
-        self.binaural_exp_label.setObjectName("BinTech_exp_label")
-        self.binaural_exp_combobox = QtWidgets.QComboBox()
-        self.binaural_exp_combobox.setMaximumWidth(120)
-        self.binaural_exp_combobox.setObjectName("BinTech_exp_combobox")
-        self.binaural_exp_combobox.addItem("")
-        self.binaural_exp_combobox.addItem("")
-        hlayout.addWidget(self.binaural_exp_label)
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed))
-        hlayout.addWidget(self.binaural_exp_combobox)
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Expanding,
-            QtWidgets.QSizePolicy.Fixed))
-        top_layout.addLayout(hlayout)
+        # 1.3 Native Language [cite: 11]
+        self.language_label = QtWidgets.QLabel()
+        self.language_combobox = QtWidgets.QComboBox()
+        self.add_row(self.language_label, self.language_combobox)
 
-        # health status
-        hlayout = QtWidgets.QHBoxLayout()
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed))
-        self.health_status_label = QtWidgets.QLabel()
-        self.health_status_label.setGeometry(QtCore.QRect(20, 485, 541, 21))
-        self.health_status_label.setObjectName("health_status_label")
-        self.health_status_combobox = QtWidgets.QComboBox()
-        self.health_status_combobox.setMinimumWidth(120)
-        self.health_status_combobox.setSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                                  QtWidgets.QSizePolicy.Fixed)
-        self.health_status_combobox.setFixedSize(220, 20)
-        self.health_status_combobox.setFixedWidth(200)
-        self.health_status_combobox.setObjectName("health_status_combo")
-        self.health_status_combobox.addItem("")
-        self.health_status_combobox.addItem("")
-        self.health_status_combobox.addItem("")
-        self.health_status_combobox.addItem("")
-        self.health_status_combobox.addItem("")
-        self.health_status_combobox.addItem("")
-        hlayout.addWidget(self.health_status_label)
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed))
-        hlayout.addWidget(self.health_status_combobox)
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Expanding,
-            QtWidgets.QSizePolicy.Fixed))
-        top_layout.addLayout(hlayout)
+        # 1.4 German Proficiency [cite: 16]
+        self.german_level_label = QtWidgets.QLabel()
+        self.german_level_combobox = QtWidgets.QComboBox()
+        self.add_row(self.german_level_label, self.german_level_combobox)
 
-        # hearing problems
-        hlayout = QtWidgets.QHBoxLayout()
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed))
-        self.hearing_problems_label = QtWidgets.QLabel()
-        self.hearing_problems_label.setGeometry(QtCore.QRect(20, 185, 341, 21))
-        self.hearing_problems_label.setObjectName("hearing_problems_label")
-        self.hearing_problems_combobox = QtWidgets.QComboBox()
-        self.hearing_problems_combobox.setMaximumWidth(120)
-        self.hearing_problems_combobox.setObjectName("hearing_problems_combo")
-        self.hearing_problems_combobox.addItem("")
-        self.hearing_problems_combobox.addItem("")
-        self.hearing_problems_combobox.addItem("")
-        self.hearing_problems_combobox.addItem("")
-        hlayout.addWidget(self.hearing_problems_label)
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Fixed,
-            QtWidgets.QSizePolicy.Fixed))
-        hlayout.addWidget(self.hearing_problems_combobox)
-        hlayout.addItem(QtWidgets.QSpacerItem(
-            50, 10, QtWidgets.QSizePolicy.Expanding,
-            QtWidgets.QSizePolicy.Fixed))
-        top_layout.addLayout(hlayout)
+        # 1.5 Education [cite: 31]
+        self.education_label = QtWidgets.QLabel()
+        self.education_combobox = QtWidgets.QComboBox()
+        self.add_row(self.education_label, self.education_combobox)
+
+        # 1.6 Hearing Impairment [cite: 35]
+        self.hearing_label = QtWidgets.QLabel()
+        self.hearing_combobox = QtWidgets.QComboBox()
+        self.add_row(self.hearing_label, self.hearing_combobox)
+
+        # Divider
+        line = QtWidgets.QFrame()
+        line.setFrameShape(QtWidgets.QFrame.HLine)
+        self.form_layout.addWidget(line)
+
+        # =========================================================
+        # SECTION 2: Acoustic and Musical Experience [cite: 44]
+        # =========================================================
+
+        # 2.1 Acoustics Profession [cite: 45]
+        self.acoustics_prof_label = QtWidgets.QLabel()
+        self.acoustics_prof_combobox = QtWidgets.QComboBox()
+        self.add_row(self.acoustics_prof_label, self.acoustics_prof_combobox)
+
+        # 2.2 Acoustics Years [cite: 49]
+        self.acoustics_years_label = QtWidgets.QLabel()
+        self.acoustics_years_edit = QtWidgets.QLineEdit()
+        self.acoustics_years_edit.setMaximumWidth(120)
+        self.add_row(self.acoustics_years_label, self.acoustics_years_edit)
+
+        # 2.3 Music Profession [cite: 51]
+        self.music_prof_label = QtWidgets.QLabel()
+        self.music_prof_combobox = QtWidgets.QComboBox()
+        self.add_row(self.music_prof_label, self.music_prof_combobox)
+
+        # 2.4 Music Years [cite: 55]
+        self.music_years_label = QtWidgets.QLabel()
+        self.music_years_edit = QtWidgets.QLineEdit()
+        self.music_years_edit.setMaximumWidth(120)
+        self.add_row(self.music_years_label, self.music_years_edit)
+
+        # 2.5 Instrument/Vocals [cite: 57]
+        self.instrument_label = QtWidgets.QLabel()
+        self.instrument_combobox = QtWidgets.QComboBox()
+        self.add_row(self.instrument_label, self.instrument_combobox)
+
+        # 2.6 Instrument Years [cite: 61]
+        self.instrument_years_label = QtWidgets.QLabel()
+        self.instrument_years_edit = QtWidgets.QLineEdit()
+        self.instrument_years_edit.setMaximumWidth(120)
+        self.add_row(self.instrument_years_label, self.instrument_years_edit)
+
+        # Divider
+        line2 = QtWidgets.QFrame()
+        line2.setFrameShape(QtWidgets.QFrame.HLine)
+        self.form_layout.addWidget(line2)
+
+        # =========================================================
+        # SECTION 3: Studies and Listening Habits [cite: 63]
+        # =========================================================
+
+        # 3.1 Prior Experiment Participation [cite: 64]
+        self.prior_exp_label = QtWidgets.QLabel()
+        self.prior_exp_combobox = QtWidgets.QComboBox()
+        self.add_row(self.prior_exp_label, self.prior_exp_combobox)
+
+        # 3.2 How many studies [cite: 68]
+        self.num_studies_label = QtWidgets.QLabel()
+        self.num_studies_edit = QtWidgets.QLineEdit()
+        self.num_studies_edit.setMaximumWidth(120)
+        self.add_row(self.num_studies_label, self.num_studies_edit)
+
+        # 3.3 Daily listening hours [cite: 71]
+        self.listening_hours_label = QtWidgets.QLabel()
+        self.listening_hours_edit = QtWidgets.QLineEdit()
+        self.listening_hours_edit.setMaximumWidth(120)
+        self.add_row(self.listening_hours_label, self.listening_hours_edit)
+
+        # Divider
+        line3 = QtWidgets.QFrame()
+        line3.setFrameShape(QtWidgets.QFrame.HLine)
+        self.form_layout.addWidget(line3)
+
+        # =========================================================
+        # SECTION 4: Student Info [cite: 74]
+        # =========================================================
         
-        top_layout.addItem(QtWidgets.QSpacerItem(
-            120, 60, QtWidgets.QSizePolicy.Expanding,
-            QtWidgets.QSizePolicy.Fixed))
+        # Matriculation Number [cite: 77]
+        self.matriculation_label = QtWidgets.QLabel()
+        self.matriculation_edit = QtWidgets.QLineEdit()
+        self.matriculation_edit.setMaximumWidth(200)
+        self.add_row(self.matriculation_label, self.matriculation_edit)
 
-        hlayout = QtWidgets.QHBoxLayout()
-        #self.calibrate_btn = QtWidgets.QPushButton(self.centralwidget)
-        #self.calibrate_btn.setFixedSize(QtCore.QSize(110, 30))
-        #self.calibrate_btn.setObjectName("calibrate_btn")
+        # Add scroll content to scroll area
+        self.scroll_area.setWidget(self.scroll_content)
+        main_layout.addWidget(self.scroll_area)
+
+        # --- Footer Area (Start Button) ---
+        button_layout = QtWidgets.QHBoxLayout()
+        button_layout.addStretch()
         self.start_btn = QtWidgets.QPushButton(self.centralwidget)
-        self.start_btn.setFixedSize(QtCore.QSize(110, 30))
+        self.start_btn.setFixedSize(QtCore.QSize(150, 40))
         self.start_btn.setObjectName("start_btn")
-        #hlayout.addWidget(self.calibrate_btn)
-        hlayout.addWidget(self.start_btn)
-        top_layout.addLayout(hlayout)
+        button_layout.addWidget(self.start_btn)
+        button_layout.addStretch()
+        main_layout.addLayout(button_layout)
 
-        self.task_label.raise_()
-        self.start_btn.raise_()
-        self.age_combobox.raise_()
-        self.age_label.raise_()
-        self.gender_label.raise_()
-        self.gender_combobox.raise_()
-        #self.calibrate_btn.raise_()
-
-        main_layout.addLayout(top_layout)
-        # add footer
         main_layout.addLayout(footer)
 
         ui.setCentralWidget(self.centralwidget)
         self.retranslateUi(ui, language)
         QtCore.QMetaObject.connectSlotsByName(ui)
 
+    def add_row(self, label, widget):
+        """Helper to add a label/widget row to the form layout"""
+        hlayout = QtWidgets.QHBoxLayout()
+        hlayout.setContentsMargins(20, 0, 20, 0)
+        
+        label.setWordWrap(True)
+        # label.setMinimumWidth(400)
+        
+        hlayout.addWidget(label, 3) # Label takes 3 parts space
+        hlayout.addWidget(widget, 1) # Widget takes 1 part space
+        self.form_layout.addLayout(hlayout)
+
     def retranslateUi(self, ui, language):
         _translate = QtCore.QCoreApplication.translate
         ui.setWindowTitle(_translate("welcome_gui", "Welcome"))
+        
+        # Intro Text [cite: 1]
         self.task_label.setText(_translate("SAQI_welcome_gui",
-                                           "<html><head/><body><p align=\"justify\">Welcome to our Listening Experiment. </p><p align=\"justify\">Please provide us some information about yourselfe and click start </p><p align=\"justify\">to start the experiment.</p></body></html>"))
+            "<html><head/><body><p align=\"center\"><b>Socio-demographic questionnaire</b></p>"
+            "<p align=\"center\">Please fill out the questionnaire. Tick or fill in the appropriate information.</p></body></html>"))
+
         if language == 'english':
-            self.start_btn.setText(_translate("SAQI_welcome_gui", "start"))
-            self.age_label.setText(_translate("SAQI_welcome_gui", "age"))
-            self.gender_label.setText(_translate("SAQI_welcome_gui", "gender"))
-            self.gender_combobox.setItemText(0, _translate("SAQI_welcome_gui", "female"))
-            self.gender_combobox.setItemText(1, _translate("SAQI_welcome_gui", "male"))
-            self.gender_combobox.setItemText(2, _translate("SAQI_welcome_gui", "divers / non-binary"))
-            for age in range(1, 99):
-                self.age_combobox.addItem(f"{age}")
-            self.general_exp_combobox.setItemText(0, _translate("SAQI_welcome_gui", "no"))
-            self.general_exp_combobox.setItemText(1, _translate("SAQI_welcome_gui", "<3"))
-            self.general_exp_combobox.setItemText(2, _translate("SAQI_welcome_gui", "3-5"))
-            self.general_exp_combobox.setItemText(3, _translate("SAQI_welcome_gui", ">5"))
-            self.general_exp_combobox.adjustSize()
-            self.binaural_exp_label.setText(
-                _translate("SAQI_welcome_gui", "Do you have experince with binaural technology?"))
-            self.binaural_exp_combobox.setItemText(0, _translate("SAQI_welcome_gui", "yes"))
-            self.binaural_exp_combobox.setItemText(1, _translate("SAQI_welcome_gui", "no"))
-            self.binaural_exp_combobox.adjustSize()
-            self.general_exp_label.setText(_translate("SAQI_welcome_gui",
-                                                 "<html><head/><body><p>Did you already participated in a listening experiments </p><p>and if in how many?</p></body></html>"))
-            self.health_status_label.setText(_translate("SAQI_welcome_gui", "How do you feel today?"))
-            self.health_status_combobox.setItemText(0, _translate("SAQI_welcome_gui", "excellent"))
-            self.health_status_combobox.setItemText(1, _translate("SAQI_welcome_gui", "very well"))
-            self.health_status_combobox.setItemText(2, _translate("SAQI_welcome_gui", "well"))
-            self.health_status_combobox.setItemText(3, _translate("SAQI_welcome_gui", "less well"))
-            self.health_status_combobox.setItemText(4, _translate("SAQI_welcome_gui", "bad"))
-            #self.health_status_label.adjustSize()
-            self.hearing_problems_label.setText(_translate("SAQI_welcome_gui", "Do you have any hearing problems on one or both ears?"))
-            self.hearing_problems_combobox.setItemText(0, _translate("SAQI_welcome_gui", "no"))
-            self.hearing_problems_combobox.setItemText(1, _translate("SAQI_welcome_gui", "both"))
-            self.hearing_problems_combobox.setItemText(2, _translate("SAQI_welcome_gui", "left"))
-            self.hearing_problems_combobox.setItemText(3, _translate("SAQI_welcome_gui", "right"))
-            self.hearing_problems_combobox.adjustSize()
-            #self.calibrate_btn.setText(_translate("SAQI_welcome_gui", "calibrate"))
-
-        elif language == 'german':
             self.start_btn.setText(_translate("SAQI_welcome_gui", "Start"))
-            self.age_label.setText(_translate("SAQI_welcome_gui", "Alter"))
-            self.gender_label.setText(_translate("SAQI_welcome_gui", "Geschlecht"))
-            self.gender_combobox.setItemText(0, _translate("SAQI_welcome_gui", "weiblich"))
-            self.gender_combobox.setItemText(1, _translate("SAQI_welcome_gui", "männlich"))
-            self.gender_combobox.setItemText(1, _translate("SAQI_welcome_gui", "divers / non-binary"))
-            for age in range(1, 99):
-                self.age_combobox.addItem(f"{age}")
-            self.general_exp_combobox.setItemText(0, _translate("SAQI_welcome_gui", "Nein"))
-            self.general_exp_combobox.setItemText(1, _translate("SAQI_welcome_gui", "<3"))
-            self.general_exp_combobox.setItemText(2, _translate("SAQI_welcome_gui", "3-5"))
-            self.general_exp_combobox.setItemText(3, _translate("SAQI_welcome_gui", ">5"))
-            self.health_status_label.setText(_translate("SAQI_welcome_gui", "Wie fühlst du dich heute?"))
-            self.health_status_combobox.setItemText(0, _translate("SAQI_welcome_gui", "ausgezeichnet"))
-            self.health_status_combobox.setItemText(1, _translate("SAQI_welcome_gui", "sehr gut"))
-            self.health_status_combobox.setItemText(2, _translate("SAQI_welcome_gui", "gut"))
-            self.health_status_combobox.setItemText(3, _translate("SAQI_welcome_gui", "weniger gut"))
-            self.health_status_combobox.setItemText(4, _translate("SAQI_welcome_gui", "schlecht"))
-            self.hearing_problems_label.setText(_translate("SAQI_welcome_gui", "Haben Sie in einem oder in beiden Ohren Hörschwierigkeiten?"))
-            self.hearing_problems_combobox.setItemText(0, _translate("SAQI_welcome_gui", "nein"))
-            self.hearing_problems_combobox.setItemText(1, _translate("SAQI_welcome_gui", "beiden"))
-            self.hearing_problems_combobox.setItemText(2, _translate("SAQI_welcome_gui", "links"))
-            self.hearing_problems_combobox.setItemText(3, _translate("SAQI_welcome_gui", "rechts"))
-            self.binaural_exp_label.setText(
-                _translate("SAQI_welcome_gui", "Haben Sie Erfahrung mit Binaural Synthese?"))
-            self.binaural_exp_combobox.setItemText(0, _translate("SAQI_welcome_gui", "Ja"))
-            self.binaural_exp_combobox.setItemText(1, _translate("SAQI_welcome_gui", "Nein"))
-            self.general_exp_label.setText(_translate("SAQI_welcome_gui",
-                                                 "<html><head/><body><p>Haben Sie bereits an einem Hörversuch teilgenommen </p><p>und wenn ja an wie vielen?</p></body></html>"))
-            #self.calibrate_btn.setText(_translate("SAQI_welcome_gui", "Kalibrieren"))
+            
+            # 1.1 Gender [cite: 9]
+            self.gender_label.setText(_translate("SAQI_welcome_gui", "1.1 What gender do you identify with most?"))
+            self.gender_combobox.clear()
+            self.gender_combobox.addItems(["Female", "Male", "Diverse"])
+            
+            # 1.2 Year Born [cite: 10]
+            self.year_born_label.setText(_translate("SAQI_welcome_gui", "1.2 What year were you born?"))
+            self.year_born_edit.setPlaceholderText("YYYY")
 
+            # 1.3 Native Language [cite: 11]
+            self.language_label.setText(_translate("SAQI_welcome_gui", "1.3 What is your native language?"))
+            self.language_combobox.clear()
+            self.language_combobox.addItems(["German", "English", "French", "Spanish", "Hebrew", "Other"])
+
+            # 1.4 German Proficiency [cite: 16]
+            self.german_level_label.setText(_translate("SAQI_welcome_gui", "1.4 Please rate your current level of proficiency in the German language!"))
+            self.german_level_combobox.clear()
+            self.german_level_combobox.addItems([
+                "Native speaker",
+                "A1 - Breakthrough Basic User",
+                "A2 - Waystage Basic User",
+                "B1 - Threshold Independent User",
+                "B2 - Vantage Independent User",
+                "C1 - Advanced Proficient User",
+                "C2 - Mastery Proficient User",
+                "Other"
+            ])
+
+            # 1.5 Education [cite: 31]
+            self.education_label.setText(_translate("SAQI_welcome_gui", "1.5 What is your highest educational qualification?"))
+            self.education_combobox.clear()
+            self.education_combobox.addItems(["Secondary Education or less", "Graduate or higher academic degree"])
+
+            # 1.6 Hearing [cite: 35]
+            self.hearing_label.setText(_translate("SAQI_welcome_gui", "1.6 Do you have a medically diagnosed hearing impairment?"))
+            self.hearing_combobox.clear()
+            self.hearing_combobox.addItems([
+                "No", 
+                "Yes, pertains to the right ear", 
+                "Yes, pertains to the left ear", 
+                "Yes, pertains to both ears"
+            ])
+
+            # 2.1 Acoustics Profession [cite: 45]
+            self.acoustics_prof_label.setText(_translate("SAQI_welcome_gui", "2.1 Do you have an acoustics-related profession or training?"))
+            self.acoustics_prof_combobox.clear()
+            self.acoustics_prof_combobox.addItems(["No", "Yes"])
+
+            # 2.2 Acoustics Years [cite: 49]
+            self.acoustics_years_label.setText(_translate("SAQI_welcome_gui", "2.2 Experience in years (approximate):"))
+            
+            # 2.3 Music Profession [cite: 51]
+            self.music_prof_label.setText(_translate("SAQI_welcome_gui", "2.3 Do you have a music-related profession or training?"))
+            self.music_prof_combobox.clear()
+            self.music_prof_combobox.addItems(["No", "Yes"])
+
+            # 2.4 Music Years [cite: 55]
+            self.music_years_label.setText(_translate("SAQI_welcome_gui", "2.4 Experience in years (approximate):"))
+
+            # 2.5 Instrument [cite: 57]
+            self.instrument_label.setText(_translate("SAQI_welcome_gui", "2.5 Have you learned at least one instrument/vocals under guidance?"))
+            self.instrument_combobox.clear()
+            self.instrument_combobox.addItems(["No", "Yes"])
+
+            # 2.6 Instrument Years [cite: 61]
+            self.instrument_years_label.setText(_translate("SAQI_welcome_gui", "2.6 Experience in years (approximate):"))
+
+            # 3.1 Prior Experiment [cite: 64]
+            self.prior_exp_label.setText(_translate("SAQI_welcome_gui", "3.1 Have you ever participated in a scientific hearing experiment before?"))
+            self.prior_exp_combobox.clear()
+            self.prior_exp_combobox.addItems(["No", "Yes"])
+
+            # 3.2 Num Studies [cite: 68]
+            self.num_studies_label.setText(_translate("SAQI_welcome_gui", "3.2 How many such studies have you participated in?"))
+
+            # 3.3 Listening Hours [cite: 71]
+            self.listening_hours_label.setText(_translate("SAQI_welcome_gui", "3.3 Active listening hours per day (0-24):"))
+
+            # 4. Matriculation [cite: 75]
+            self.matriculation_label.setText(_translate("SAQI_welcome_gui", "4. (TU Berlin Students) Matriculation number:"))
+            self.matriculation_edit.setPlaceholderText("Optional")

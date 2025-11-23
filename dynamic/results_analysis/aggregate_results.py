@@ -13,11 +13,27 @@ def get_mat_value(mat_variable):
     nested in arrays.
     """
     if isinstance(mat_variable, np.ndarray):
-        if mat_variable.dtype.kind == 'U':
-            return str(mat_variable[0])
+        # Handle empty arrays (e.g. empty optional text fields)
+        if mat_variable.size == 0:
+            return ""
+        
+        # Handle strings
+        if mat_variable.dtype.kind in {'U', 'S'}:
+            # If it's a scalar string wrapped in array
+            if mat_variable.size == 1:
+                val = mat_variable.item()
+                # Sometimes scipy returns it as a string, sometimes as a generic object
+                return str(val) if val is not None else ""
+            # If it's an array of characters
+            return "".join(str(c) for c in mat_variable.flatten())
+            
+        # Handle scalar numbers
         if mat_variable.size == 1:
             return mat_variable.item()
+            
+        # Handle lists/arrays
         return mat_variable.flatten().tolist()
+    
     return mat_variable
 
 def sort_key_for_trial_cols(col_name):
@@ -36,14 +52,10 @@ def sort_key_for_trial_cols(col_name):
         # If it doesn't match, put it at the end
         return (float('inf'), col_name)
 
-def aggregate_mat_results(results_folder, output_filename='aggregated_results_v2.csv'):
+def aggregate_mat_results(results_folder, output_filename='aggregated_results.csv'):
     """
     Finds 'results_subj*.mat' files, aggregates them by subject,
     and writes a CSV file with paired (id, rating) columns.
-    
-    Args:
-        results_folder (str): The path to the directory containing the .mat files.
-        output_filename (str): The name for the output CSV file.
     """
     print(f"Starting aggregation in folder: {results_folder}")
     
@@ -76,10 +88,27 @@ def aggregate_mat_results(results_folder, output_filename='aggregated_results_v2
     all_data_rows = []
     all_fieldnames = set()
     
+    # --- UPDATED FIELD LIST ---
+    # This matches the keys we created in main_window.py -> finish_login()
     static_info_fields = [
-        'subject_id', 'participant_id', 'age', 'gender',
-        'ListeningExperimentExperience', 'BinauralExperience',
-        'HealthStatus', 'HearingProblems'
+        'subject_id', 
+        'participant_id', 
+        'gender', 
+        'year_born', 
+        'native_language', 
+        'german_proficiency', 
+        'education', 
+        'hearing_impairment', 
+        'acoustics_profession', 
+        'acoustics_years', 
+        'music_profession', 
+        'music_years', 
+        'musical_instrument', 
+        'instrument_years', 
+        'prior_experiment', 
+        'num_studies', 
+        'listening_hours_daily', 
+        'matriculation_number'
     ]
     all_fieldnames.update(static_info_fields)
 
@@ -91,15 +120,39 @@ def aggregate_mat_results(results_folder, output_filename='aggregated_results_v2
         if file_group['info']:
             try:
                 data = scipy.io.loadmat(file_group['info'])
-                infos = data['participant_infos'][0, 0]
                 
-                for field in infos.dtype.names:
-                    if field in static_info_fields:
-                        row[field] = get_mat_value(infos[field])
+                # Check if 'participant_infos' exists
+                if 'participant_infos' in data:
+                    # Depending on how it was saved, it might be a struct array
+                    # Extract the structured array
+                    infos_struct = data['participant_infos']
+                    
+                    # If it's 2D [[(values)]], get to the void scalar
+                    if infos_struct.shape == (1, 1):
+                        infos = infos_struct[0, 0]
                         
+                        # Check which fields from our list exist in the .mat file
+                        for field in static_info_fields:
+                            # skip subject_id as it comes from filename
+                            if field == 'subject_id': 
+                                continue
+                                
+                            # Numpy structured arrays access fields by name
+                            if field in infos.dtype.names:
+                                raw_val = infos[field]
+                                row[field] = get_mat_value(raw_val)
+                            else:
+                                # If field is missing in .mat (e.g. old file), leave blank
+                                row[field] = ""
+                    else:
+                        print(f"  Warning: 'participant_infos' has unexpected shape {infos_struct.shape}")
+                else:
+                    print(f"  Warning: 'participant_infos' key not found in {file_group['info']}")
+
             except Exception as e:
                 print(f"  ERROR: Could not read info file {file_group['info']}: {e}")
         
+        # Process Trial Files
         sorted_trials = sorted(
             file_group['trials'], 
             key=lambda f: int(re.search(r'_trial(\d+)\.mat', os.path.basename(f)).group(1))
@@ -109,43 +162,30 @@ def aggregate_mat_results(results_folder, output_filename='aggregated_results_v2
             try:
                 trial_num_match = re.search(r'_trial(\d+)\.mat', os.path.basename(trial_file))
                 if not trial_num_match:
-                    print(f"  Warning: Skipping file with unexpected name: {trial_file}")
                     continue
                 
                 trial_num = trial_num_match.group(1)
                 t_data = scipy.io.loadmat(trial_file)
                 
-                
-                # 1. Get the values and IDs
                 slider_vals = get_mat_value(t_data['slider_values'])
                 ssr_ids = get_mat_value(t_data['current_ssr_ids'])
 
-                # 2. Ensure they are lists, even if single values
                 if not isinstance(slider_vals, list):
                     slider_vals = [slider_vals]
                 if not isinstance(ssr_ids, list):
                     ssr_ids = [ssr_ids]
 
-                # 3. Check for mismatches
                 if len(slider_vals) != len(ssr_ids):
-                    print(f"  Warning: Mismatch in slider_values ({len(slider_vals)}) "
-                          f"and ssr_ids ({len(ssr_ids)}) in file {trial_file}. Skipping trial.")
+                    print(f"  Warning: Mismatch in trial {trial_num}. Skipping.")
                     continue
                 
-                # 4. Zip, sort by ID, and add to row
-                #    We cast ssr_id to int to get clean headers like '..._id_7' not '..._id_7.0'
-                
-                # Create (id, value) pairs
                 paired_data = zip(ssr_ids, slider_vals)
-                
-                # Sort pairs by the ssr_id (the first item in the tuple)
                 sorted_pairs = sorted(paired_data, key=lambda pair: pair[0])
 
-                # 5. Add to the row dictionary
                 for ssr_id, slider_val in sorted_pairs:
                     key = f'trial_{trial_num}_id_{int(ssr_id)}'
                     row[key] = slider_val
-                    all_fieldnames.add(key) # Add new header to our master set
+                    all_fieldnames.add(key)
                                 
             except Exception as e:
                 print(f"  ERROR: Could not read trial file {trial_file}: {e}")
@@ -156,7 +196,7 @@ def aggregate_mat_results(results_folder, output_filename='aggregated_results_v2
         print("No data processed. Exiting.")
         return
 
-    # Use the custom sort key to order dynamic fields
+    # Sort dynamic trial columns
     dynamic_fields = sorted(
         [f for f in all_fieldnames if f not in static_info_fields],
         key=sort_key_for_trial_cols
@@ -165,18 +205,13 @@ def aggregate_mat_results(results_folder, output_filename='aggregated_results_v2
 
     try:
         with open(output_filename, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=final_headers, restval='NA')
+            writer = csv.DictWriter(f, fieldnames=final_headers, restval='')
             writer.writeheader()
             writer.writerows(all_data_rows)
         print(f"\nSuccess! Aggregated data written to {output_filename}")
     except Exception as e:
         print(f"\nERROR: Could not write CSV file: {e}")
 
-# --- To run the script ---
 if __name__ == "__main__":
-    
-    # Use the current directory
     path_to_data = '../bgu_results/results/' 
-    
-    print(f"--- Running aggregation for folder: {os.path.abspath(path_to_data)} ---")
     aggregate_mat_results(path_to_data, output_filename='aggregated_results.csv')

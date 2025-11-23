@@ -10,26 +10,19 @@ from .gui import gui
 from .. classes.main_window import MainWindow
 import os
 import sys
-# 1. Get the absolute path to this script (main_window.py)
-#    e.g., /path/to/project/listening_experiment_py/classes/main_window.py
+
+# 1. Get the absolute path to this script
 script_path = os.path.abspath(__file__)
-
 # 2. Get the directory containing this script
-#    e.g., /path/to/project/listening_experiment_py/classes
 current_dir = os.path.dirname(script_path)
-
 # 3. Go up two levels to find the project's root directory
-#    Level 1 up: .../listening_experiment_py
-#    Level 2 up: /path/to/project/
 project_root = os.path.dirname(os.path.dirname(current_dir))
 
 # 4. Add this project root to the system's import path
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-# 5. Now you can import from 'results_analysis' as if you were at the root
 from results_analysis.aggregate_results import aggregate_mat_results
-
 
 
 class MushraMainWindow(MainWindow):
@@ -39,19 +32,8 @@ class MushraMainWindow(MainWindow):
 
         """
         Listening Experiment Py: SAQI - A Spatial Audio Inventory
-
         (C) 2021 by Tim Lübeck
-                TH Köln - University of Applied Sciences
-                Institute of Communications Engineering
-                Department of Acoustics and Audio Signal Processing
-
-        Parameters
-        ----------
-        ssr_handler
-        jack_handler
-        experiment_handler
-        language
-        verbose
+        Modified 2025 for BGU/TUB MUSHRA
         """
         super().__init__(ssr_handler=ssr_handler,
                          experiment_handler=experiment_handler,
@@ -64,6 +46,8 @@ class MushraMainWindow(MainWindow):
         self._language = language
         self.debug = debug
         self.last_button = None
+        
+        # Start the welcome screen
         self.start_welcome_screen()
     
     def keyPressEvent(self, event):
@@ -87,70 +71,75 @@ class MushraMainWindow(MainWindow):
         super().keyPressEvent(event)
     
     def animate_button(self, button):
-        # Store the last pressed button
         if self.last_button and self.last_button != button:
-            # Optionally reset previous button if you don't want it to stay highlighted
             self.last_button.setStyleSheet("")
         
-        # Set the new button's animated "clicked" style (temporary highlight effect)
-        button.setStyleSheet("background-color: #D3D3D3; border-radius: 5px;")  # Customize as needed
-
-        # Update last_button to the currently pressed button
+        button.setStyleSheet("background-color: #D3D3D3; border-radius: 5px;")
         self.last_button = button
     
     def start_welcome_screen(self):
+        """
+        Initialize the new Welcome GUI with the updated PDF questions.
+        """
         self._ui = Welcome_gui()
         self._ui.setupUi(self, "TUB_Chalmers_THK", self._language,
                          footer=FooterTUB_THK_Chalmers(
                             experiment_name=""))
 
-        # callbacks
-        self._ui.age_combobox.activated.connect(lambda:
-                                                self.set_participant_infos(0))
-        self._ui.gender_combobox.activated.connect(
-            lambda: self.set_participant_infos(1))
-        self._ui.general_exp_combobox.activated.connect(
-            lambda: self.set_participant_infos(2))
-        self._ui.binaural_exp_combobox.activated.connect(
-                                                lambda:
-                                                self.set_participant_infos(3))
-        self._ui.health_status_combobox.activated.connect(
-                                                lambda:
-                                                self.set_participant_infos(4))
-        self._ui.hearing_problems_combobox.activated.connect(
-                                                lambda:
-                                                self.set_participant_infos(5))
-
+        # Connect the start button to the login finisher
         self._ui.start_btn.clicked.connect(self.finish_login)
-        #self._ui.calibrate_btn.clicked.connect(self._ssr_handler.calibrate_tracker)
-
-        self.checked_participant_infos = list([0, 0, 0, 0, 0, 0])
+        
+        # Note: Removed old 'activated' connections (age, health, etc.) 
+        # because the widgets have changed and we now collect data 
+        # in bulk when 'Start' is clicked.
 
     def finish_login(self):
+        """
+        Collects data from the new GUI fields and starts the experiment.
+        """
         if not self.debug:
+            # 1. Collect all data from the new widgets in Welcome_gui
+            participant_data = {
+                'gender': self._ui.gender_combobox.currentText(),
+                'year_born': self._ui.year_born_edit.text(),
+                'native_language': self._ui.language_combobox.currentText(),
+                'german_proficiency': self._ui.german_level_combobox.currentText(),
+                'education': self._ui.education_combobox.currentText(),
+                'hearing_impairment': self._ui.hearing_combobox.currentText(),
+                
+                'acoustics_profession': self._ui.acoustics_prof_combobox.currentText(),
+                'acoustics_years': self._ui.acoustics_years_edit.text(),
+                'music_profession': self._ui.music_prof_combobox.currentText(),
+                'music_years': self._ui.music_years_edit.text(),
+                'musical_instrument': self._ui.instrument_combobox.currentText(),
+                'instrument_years': self._ui.instrument_years_edit.text(),
+                
+                'prior_experiment': self._ui.prior_exp_combobox.currentText(),
+                'num_studies': self._ui.num_studies_edit.text(),
+                'listening_hours_daily': self._ui.listening_hours_edit.text(),
+                'matriculation_number': self._ui.matriculation_edit.text()
+            }
 
-            #if self._ssr_handler._is_calibrated:
-            # ✅ Always collect values from comboboxes, no click-checking
-            self.checked_participant_infos[0] = self._ui.age_combobox.currentText()
-            self.checked_participant_infos[1] = self._ui.gender_combobox.currentText()
-            self.checked_participant_infos[2] = self._ui.general_exp_combobox.currentText()
-            self.checked_participant_infos[3] = self._ui.binaural_exp_combobox.currentText()
-            self.checked_participant_infos[4] = self._ui.health_status_combobox.currentText()
-            self.checked_participant_infos[5] = self._ui.hearing_problems_combobox.currentText()
+            # 2. Pass this dictionary to the experiment handler
+            # Ensure your experiment_handler can accept a dict, 
+            # otherwise, convert this to a list if strictly required.
+            self._experiment_handler.set_participant_infos(participant_data)
 
-            self._experiment_handler.set_participant_infos(self.checked_participant_infos)
-
+            # 3. Show Instructions
             message_box = QtWidgets.QMessageBox()
             message_box.setGeometry(QtCore.QRect(700, 500, 151, 32))
-            message_box.move(
-                int(self._monitor.left() / 1.7), int(self._monitor.top() * 1.5))
-
+            # Safe move logic
+            if self._monitor:
+                message_box.move(
+                    int(self._monitor.left() / 1.7), int(self._monitor.top() * 1.5))
+            
             if self._language == 'english':
-                message = 'Thanks for participating in our listening experiment\nThe experiment starts now.'
+                message = 'Thank you for participating in our listening experiment.\nThe experiment starts now.\n\nIn this experiment, you will be asked to rate the Overall Quality difference between a Reference and a Test signal.\n\nYou will first listen to the Reference signal, followed by a short pause, and then the Test signal.\n\nThis is a global evaluation. You should consider all audible differences—such as coloration, spatial distortions, source postion dynamics, or added noise—and rate the general fidelity of the test signal relative to the reference.'
             elif self._language == 'german':
                 message = 'Danke für die Teilnahme an unserem Hörversuch\nDer Versuch startet nun.'
             else:
                 message = ''
+            
             QtWidgets.QMessageBox.information(
                 message_box, 'Info', message,
                 QtWidgets.QMessageBox.Ok)
@@ -158,79 +147,8 @@ class MushraMainWindow(MainWindow):
             self.start_main_experiment_screen()
 
         else:
+            # Debug mode skips validation
             self.start_main_experiment_screen()
-
-    """
-    def finish_login(self):
-        if not self.debug:
-
-            if self._ssr_handler._is_calibrated:
-                if np.sum(self.checked_participant_infos) == \
-                        len(self.checked_participant_infos):
-                    self.checked_participant_infos[0] = \
-                        self._ui.age_combobox.currentText()
-                    self.checked_participant_infos[1] = \
-                        self._ui.gender_combobox.currentText()
-                    self.checked_participant_infos[2] = \
-                        self._ui.general_exp_combobox.currentText()
-                    self.checked_participant_infos[3] = \
-                        self._ui.binaural_exp_combobox.currentText()
-                    self.checked_participant_infos[4] = \
-                        self._ui.health_status_combobox.currentText()
-                    self.checked_participant_infos[3] = \
-                        self._ui.hearing_problems_combobox.currentText()
-                    self._experiment_handler.set_participant_infos(
-                        self.checked_participant_infos)
-
-                    message_box = QtWidgets.QMessageBox()
-                    message_box.setGeometry(QtCore.QRect(700, 500, 151, 32))
-                    message_box.move(
-                        int(self._monitor.left()/1.7), int(self._monitor.top()*1.5))
-
-                    if self._language == 'english':
-                        message = 'Thanks for participating in our listenining experiment\n The experiment starts now. '
-
-                    elif self._language == 'german':
-                        message = 'Danke für die Teilnahme an unserm Hörversuch\n Der Versuch startet nun.'
-                    else:
-                        message = ''
-                    message_box = QtWidgets.QMessageBox.information(
-                        message_box, 'Error', message,
-                        QtWidgets.QMessageBox.Ok)
-
-                    self.start_main_experiment_screen()
-                else:
-                    message_box = QtWidgets.QMessageBox()
-                    message_box.setGeometry(QtCore.QRect(700, 500, 151, 32))
-                    message_box.move(int(self._monitor.left()/1.7),
-                                     int(self._monitor.top()*1.5))
-
-                    if self._language == 'english':
-                        message = 'Please fill all fields.'
-                    elif self._language == 'german':
-                        message = 'Bitte fülle alle Felder aus.'
-                    else:
-                        message = ''
-                    message_box = QtWidgets.QMessageBox.warning(
-                        message_box, 'Error', message,
-                        QtWidgets.QMessageBox.Ok)
-            else:
-                message_box = QtWidgets.QMessageBox()
-                message_box.setGeometry(QtCore.QRect(700, 500, 151, 32))
-                message_box.move(int(self._monitor.left() / 1.7),
-                                 int(self._monitor.top()*1.5))
-
-                if self._language == 'english':
-                    message = 'Please calibrate tracker before starting the experiment.'
-                elif self._language == 'german':
-                    message = 'Bitte calibriere den Head tracker bevor du das Experiment startest.'
-                else:
-                    message = ''
-                message_box = QtWidgets.QMessageBox.warning(
-                    message_box, 'Error', message, QtWidgets.QMessageBox.Ok)
-        else:
-            self.start_main_experiment_screen()
-    """
 
     def start_main_experiment_screen(self):
         self._ui = gui()
@@ -248,16 +166,12 @@ class MushraMainWindow(MainWindow):
         self._experiment_handler.reset_ssr_ids()
         self.update_gui()
 
-
     def start_goodby_screen(self):
         self._ui = goodbye_gui()
         self._ui.setupUi(self, self._language,
                          footer=FooterTUB_THK_Chalmers(
                             experiment_name=""))
         self._ui.finish_btn.clicked.connect(self.close_app)
-
-    def set_participant_infos(self, id):
-        self.checked_participant_infos[id] = 1
 
     def next_trial(self):
         # mute ssr sources
@@ -303,23 +217,15 @@ class MushraMainWindow(MainWindow):
             # trigger next trial
             self._experiment_handler.next_trial()
             self.update_gui()
-            
 
     def update_gui(self):
         # update gui and register callbacks
-        self.ssr_ids, curr_atr,self.ref_ssr_id, self.curr_gif_path,self.curr_sample_lengths  = self._experiment_handler.get_current_ssr_ids()
-        #self._ssr_handler.def_ssr_handler_gui_link(self._ui)
+        self.ssr_ids, curr_atr, self.ref_ssr_id, self.curr_gif_path, self.curr_sample_lengths = self._experiment_handler.get_current_ssr_ids()
         
-        
-
         if len(self.ssr_ids) == 0:
-            #curr_atr = "finish"
-            #self.ref_ssr_id = 0
-            self._ui.print_task("poo",finish=True)
+            self._ui.print_task("poo", finish=True)
         else:
-            #curr_atr = self._experiment_handler.get_current_attributes()
-            #self.ref_ssr_id = self._experiment_handler.get_current_reference_ssr_id()
-            self._ui.print_task(curr_atr,finish=False)
+            self._ui.print_task(curr_atr, finish=False)
 
         print("current attribute ids: ", curr_atr)
         print(self.ssr_ids)
@@ -332,7 +238,7 @@ class MushraMainWindow(MainWindow):
                 self._ui.Ref_btn.clicked.disconnect()
             except TypeError:
                 pass
-            #self._ui.Ref_btn.clicked.connect(partial(self._ssr_handler.select_source, self.ref_ssr_id))
+            
             self._ui.Ref_btn.clicked.connect(partial(self._ssr_handler.play_source_once, [self.ref_ssr_id, self.ref_ssr_id], playing_label=self._ui.current_playing_label, playGifSignal=self._ui.playGifSignal, stopGifSignal=self._ui.stopGifSignal, rewindGifSignal=self._ui.rewindGifSignal))
             self._ui.Ref_btn.setVisible(True)
 
@@ -344,18 +250,9 @@ class MushraMainWindow(MainWindow):
             self._ui.Mute_all.clicked.connect(partial(self._ssr_handler.mute_all, stopGifSignal=self._ui.stopGifSignal, rewindGifSignal=self._ui.rewindGifSignal))
             self._ui.Mute_all.setVisible(True)
 
-            # Calibrate button
-            #try:
-            #    self._ui.Calibrate.clicked.disconnect()
-            #except TypeError:
-            #    pass
-            #self._ui.Calibrate.clicked.connect(self._ssr_handler.calibrate_tracker)
-            #self._ui.Calibrate.setVisible(True)
         else:
             self._ui.Ref_btn.setVisible(False)
             self._ui.Mute_all.setVisible(False)
-            #self._ui.Calibrate.setVisible(False)
-
 
         for btn, slider in zip(self._ui.play_pause_btns,
                                self._ui.rating_sliders):
@@ -368,18 +265,16 @@ class MushraMainWindow(MainWindow):
             p_btn.setVisible(False)
             m_btn.setVisible(False)
 
-
-        #self._stimulus_played_flags = [False] * len(self._ui.play_pause_btns)
         self._stimulus_played_flags = [False] * len(self.ssr_ids)
 
         for btn_idx in range(0, self.ssr_ids.shape[0]):
             try:
                 self._ui.play_pause_btns[btn_idx].clicked.disconnect()
             except TypeError:
-                pass  # Ignore the error if there were no previous connections
+                pass 
             self._ui.play_pause_btns[btn_idx].clicked.connect(partial(self.mark_stimulus_played, btn_idx))
-            self._ui.play_pause_btns[btn_idx].clicked.connect(partial(self._ssr_handler.play_source_once,[self.ref_ssr_id, self.ssr_ids[btn_idx]],playing_label=self._ui.current_playing_label, playGifSignal=self._ui.playGifSignal, stopGifSignal=self._ui.stopGifSignal, rewindGifSignal=self._ui.rewindGifSignal))
-            #self._ui.play_pause_btns[btn_idx].clicked.connect(partial(self._ssr_handler.select_source, self.ssr_ids[btn_idx])) ,playGifSignal, stopGifSignal, rewindGifSignal
+            self._ui.play_pause_btns[btn_idx].clicked.connect(partial(self._ssr_handler.play_source_once, [self.ref_ssr_id, self.ssr_ids[btn_idx]], playing_label=self._ui.current_playing_label, playGifSignal=self._ui.playGifSignal, stopGifSignal=self._ui.stopGifSignal, rewindGifSignal=self._ui.rewindGifSignal))
+            
             self._ui.play_pause_btns[btn_idx].setVisible(True)
             self._ui.rating_sliders[btn_idx].setVisible(True)
             self._ui.plus_btns[btn_idx].setVisible(True)
@@ -395,9 +290,6 @@ class MushraMainWindow(MainWindow):
         else:
             self._ui.gif_label.setVisible(False)
             self._ui.current_playing_label.setVisible(False)
-
-        
-        
 
         if self.debug:
             print(self.ssr_ids)
@@ -422,16 +314,12 @@ class MushraMainWindow(MainWindow):
         output_csv = os.path.join(project_root, 'bgu_results', 'aggregated_results.csv')
 
         try:
-            # Call the function directly with the full, absolute paths
             aggregate_mat_results(results_dir, output_csv)
             print(f"Aggregation complete. Data saved to {output_csv}")
-            
         except FileNotFoundError:
             print(f"ERROR: Could not find results directory at {results_dir}")
         except Exception as e:
             print(f"ERROR: Data aggregation failed: {e}")
-            # You could show this error in a GUI pop-up
-
 
         if self._ssr_handler is not None:
             self._ssr_handler.destroy_handler()

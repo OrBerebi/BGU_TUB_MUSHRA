@@ -7,7 +7,6 @@ from .. classes.handler import ExperimentHandler
 from collections import defaultdict
 
 
-
 class Handler(ExperimentHandler):
     def __init__(self, ssr_ids, num_stimuli_per_page, attributes,
                  base_path='listening_experiment', debug=False,
@@ -77,14 +76,6 @@ class Handler(ExperimentHandler):
                     self.random_vector_phase1.extend(shuffled_ssr_ids.tolist())
                     self.random_vector_attributes.extend(shuffled_attributes.tolist())
 
-                #tmp = np.concatenate((self.ssr_ids[:, :],self.hidden_references)[:,:])
-                #tmp = np.random.permutation(tmp)
-                #self.random_vector_phase1     = tmp[:,0]
-                #self.random_vector_attributes = tmp[:,2]
-                #del tmp
-                print("No group, random_vector_phase1: ", self.random_vector_phase1)
-                print("No group, random_vector_attributes: ", self.random_vector_attributes)
-
             else:  # shuffle within groups and assume the first reference belongs to group 1,
                    # the seconds reference to group 2 and so forth
                 
@@ -103,18 +94,20 @@ class Handler(ExperimentHandler):
                 print("Yes group, random_vector_attributes: ", self.random_vector_attributes)
 
 
-
     def set_participant_infos(self, infos):
+        """
+        Saves the participant information to the .mat file.
+        Expects 'infos' to be a dictionary containing the demographic data.
+        """
         if not self._debug:
-            self.participant_infos = {'participant_id': self._overall_id_cnt,
-                                      'age': infos[0],
-                                      'gender': infos[1],
-                                      'ListeningExperimentExperience':
-                                          infos[2],
-                                      'BinauralExperience': infos[3],
-                                      'HealthStatus': infos[4],
-                                      'HearingProblems': infos[5]}
+            # We copy the dictionary passed from main_window
+            self.participant_infos = infos.copy()
+            
+            # Add the internal participant ID to the dictionary
+            self.participant_infos['participant_id'] = self._overall_id_cnt
 
+            # Save to MAT file
+            # The dictionary keys (gender, year_born, etc.) will become struct fields in MATLAB
             scyio.savemat(f'{self._result_file_name}.mat',
                           {'participant_infos': self.participant_infos,
                            'actual_trial': self.current_trial})
@@ -137,15 +130,6 @@ class Handler(ExperimentHandler):
             self.switch_phase = True
             self.experiment_complete = True
        
-        # end of phase 1
-        #if self.current_ssr_cnts[1]-1 >= self.random_vector_phase1.shape[0]:
-        #    self.current_ssr_cnts[1] = self.random_vector_phase1.shape[0]
-        #    self.switch_phase = True
-        #    self.current_trial = 0
-        #       
-        #if self.current_attribute >= len(self.attributes):
-        #    self.experiment_complete = True
-       
     
     def get_current_ssr_ids(self):
         """_summary_
@@ -154,8 +138,6 @@ class Handler(ExperimentHandler):
             _type_: in phase 1, all ssr ids to test are returned (including the reference if desired)
                     in phase 2, reference + all ssr ids to test are returned
         """
-        #return self.random_vector_phase1[self.current_ssr_cnts[0]:self.current_ssr_cnts[1]]
-
         # Extract SSR IDs from stimuli that match the current trial (page id)
         ssr_ids_filtered = self.ssr_ids[self.ssr_ids[:, 1] == self.current_trial]
         
@@ -193,10 +175,6 @@ class Handler(ExperimentHandler):
             ref_id = np.array([], dtype=int)
 
         return curr_ssr_ids, art_sting, ref_id, curr_gif_path, curr_sample_lengths
-
-        
-        
-        
 
 
     def write_results(self, values, current_ssr_ids,ref_id):

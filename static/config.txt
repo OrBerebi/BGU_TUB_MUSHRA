@@ -1,41 +1,41 @@
-Qualities: Overall Quality, Spatial Quality, Timbre Quality
+Qualities: Overall Quality, Source Position, Coloration
 
-Timbre Quality
+Coloration
 reference: 1
 evaluated signal: 2
 evaluated signal: 3
 
-Timbre Quality
+Coloration
 reference: 4
 evaluated signal: 5
 evaluated signal: 6
 
-Timbre Quality
+Coloration
 reference: 7
 evaluated signal: 8
 evaluated signal: 9
 
-Timbre Quality
+Coloration
 reference: 10
 evaluated signal: 11
 evaluated signal: 12
 
-Spatial Quality
+Source Position
 reference: 1
 evaluated signal: 2
 evaluated signal: 3
 
-Spatial Quality
+Source Position
 reference: 4
 evaluated signal: 5
 evaluated signal: 6
 
-Spatial Quality
+Source Position
 reference: 7
 evaluated signal: 8
 evaluated signal: 9
 
-Spatial Quality
+Source Position
 reference: 10
 evaluated signal: 11
 evaluated signal: 12

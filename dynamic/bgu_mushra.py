@@ -1,4 +1,5 @@
 import sys
+import os
 import numpy as np
 import ast
 from PyQt5 import QtCore, QtWidgets
@@ -58,7 +59,11 @@ def main():
     hidden_references_ids = config.get("hidden_references_ids", [])
     attributes = config.get("attributes", [])
     gifs_paths = config.get("gifs_paths", [])
+    gifs_paths = [os.path.abspath(path) for path in gifs_paths]
+
     sample_lengths = config.get("sample_lengths", [])
+
+    print(gifs_paths)
 
 
     

@@ -146,7 +146,8 @@ class MushraMainWindow(MainWindow):
                 int(self._monitor.left() / 1.7), int(self._monitor.top() * 1.5))
 
             if self._language == 'english':
-                message = 'Thanks for participating in our listening experiment\nThe experiment starts now.'
+                # Description for Coloration
+                message = 'Thank you for participating in our listening experiment\nThe experiment starts now.\nIn this experimnt you will be asked to rate the signals in terms of coloration or source position difference.\n\nColoration refers to the timbral quality and spectral balance of the sound. You should detect if the test signal sounds "brighter," "duller," or has unnatural resonances compared to the reference.\n\nSource Position refers to the perceived location of the sound event. You should detect if the direction (azimuth/elevation) or the distance of the sound source has shifted compared to the reference.'
             elif self._language == 'german':
                 message = 'Danke für die Teilnahme an unserem Hörversuch\nDer Versuch startet nun.'
             else:
