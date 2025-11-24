@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from PyQt5 import QtCore, QtWidgets, QtSvg, QtGui
 from ..GUI.utils import LabeledSlider, FooterTUB_THK_Chalmers
 
@@ -13,7 +11,7 @@ class gui(QtWidgets.QMainWindow):
     def __init__(self, num_stimuli_per_page=3, language='english', show_pm_btns=True):
         super().__init__()
 
-    def setupUi(self, ui, num_stimuli_per_page, language='english',gif_path = "/Users/orberebi/Documents/GitHub/TUB-BGU-colab/MUSHRA_2025/SSR_scene/gifs/median_plane_rotation.gif" , show_pm_btns=True):
+    def setupUi(self, ui, num_stimuli_per_page, language='english',gif_path = "./gifs/median_plane_rotation.gif" , show_pm_btns=True):
         """
         Listening Experiment Py: SAQI - A Spatial Audio Inventory
 
