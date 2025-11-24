@@ -11,7 +11,7 @@ sleep 3
 # Launch Python GUI
 echo "Launching Python MUSHRA GUI..."
 cd dynamic
-python3 bgu_mushra.py
+python bgu_mushra.py
 sleep 2
 
 # After the Python script closes, this line will run
@@ -33,7 +33,7 @@ sleep 3
 # Launch Python GUI
 echo "Launching Python MUSHRA GUI..."
 cd static
-python3 bgu_mushra.py
+python bgu_mushra.py
 sleep 2
 
 # After the Python script closes, this line will run
