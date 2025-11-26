@@ -169,9 +169,14 @@ class gui(QtWidgets.QMainWindow):
                                      "MUSHRA Listening Experiment"))
 
     def print_task(self,attribute, finish=False):
+        style = "background-color: #FFD700; color: black; font-size: 24pt; font-weight: bold;"
         if not finish:
             if self.language == 'english':
-                self.task_label.setText("Rate the difference between each signal and the reference in terms of " + attribute)
+                #self.task_label.setText("Rate the difference between each signal and the reference in terms of " + attribute)
+                self.task_label.setText(
+                    f"Rate the difference between each signal and the reference in terms of "
+                    f"<span style='{style}'>&nbsp;{attribute}&nbsp;</span>"
+                )
             elif self.language == 'german':
                 self.task_label.setText('How much do you enjoy listening to '
                                         'the following music items?')

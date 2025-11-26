@@ -46,10 +46,41 @@ class MushraMainWindow(MainWindow):
         self._language = language
         self.debug = debug
         self.last_button = None
+
+        self.current_attribute_context = None
         
         # Start the welcome screen
         self.start_welcome_screen()
     
+
+    def get_attribute_message(self, attribute):
+        """Returns the specific instruction text based on the attribute."""
+        
+        # You can customize these texts based on your specific experiment attributes
+        descriptions = {
+            "Coloration": (
+                "Task: Rate the Coloration differences.\n\n"
+                "Coloration refers to the timbral quality and spectral balance of the sound. "
+                "You should detect if the test signal sounds 'brighter,' 'duller,' "
+                "or has unnatural resonances compared to the reference."
+            ),
+            "Source Position": (
+                "Task: Rate the Source Position differences.\n\n"
+                "Source Position refers to the perceived location of the sound event. "
+                "You should detect if the direction (azimuth/elevation) or the distance "
+                "of the sound source has shifted compared to the reference."
+            ),
+            "Overall Quality": (
+                "Task: Rate the Overall Quality.\n\n"
+                "This is a global evaluation. You should consider all audible differences—"
+                "such as coloration, spatial distortions, source position dynamics, or added noise—"
+                "and rate the general fidelity of the test signal relative to the reference."
+            )
+        }
+        
+        # Return the specific description, or a default message if the attribute isn't in the dict
+        return descriptions.get(attribute, f"The rating attribute has changed.\n\nPlease now rate the signals in terms of: {attribute}")
+
     def keyPressEvent(self, event):
         key = event.key()
         
@@ -100,6 +131,7 @@ class MushraMainWindow(MainWindow):
         if not self.debug:
             # 1. Collect all data from the new widgets in Welcome_gui
             participant_data = {
+                'subject_code': self._ui.subject_code_edit.text(),
                 'gender': self._ui.gender_combobox.currentText(),
                 'year_born': self._ui.year_born_edit.text(),
                 'native_language': self._ui.language_combobox.currentText(),
@@ -134,7 +166,8 @@ class MushraMainWindow(MainWindow):
                     int(self._monitor.left() / 1.7), int(self._monitor.top() * 1.5))
             
             if self._language == 'english':
-                message = 'Thank you for participating in our listening experiment.\nThe experiment starts now.\n\nIn this experiment, you will be asked to rate the Overall Quality difference between a Reference and a Test signal.\n\nYou will first listen to the Reference signal, followed by a short pause, and then the Test signal.\n\nThis is a global evaluation. You should consider all audible differences—such as coloration, spatial distortions, source postion dynamics, or added noise—and rate the general fidelity of the test signal relative to the reference.'
+                #message = 'Thank you for participating in our listening experiment.\nThe experiment starts now.\n\nIn this experiment, you will be asked to rate the Overall Quality difference between a Reference and a Test signal.\n\nYou will first listen to the Reference signal, followed by a short pause, and then the Test signal.\n\nThis is a global evaluation. You should consider all audible differences—such as coloration, spatial distortions, source postion dynamics, or added noise—and rate the general fidelity of the test signal relative to the reference.'
+                message = 'Thank you for participating in our listening experiment.\nThe experiment starts now.'
             elif self._language == 'german':
                 message = 'Danke für die Teilnahme an unserem Hörversuch\nDer Versuch startet nun.'
             else:
@@ -226,6 +259,34 @@ class MushraMainWindow(MainWindow):
             self._ui.print_task("poo", finish=True)
         else:
             self._ui.print_task(curr_atr, finish=False)
+            # --- NEW LOGIC STARTS HERE ---
+            # Check if the attribute has changed from the last trial
+            if curr_atr != self.current_attribute_context:
+                
+                # Update the tracker so it doesn't pop up again for the same attribute
+                self.current_attribute_context = curr_atr
+                
+                # Create the Popup
+                message_box = QtWidgets.QMessageBox()
+                
+                # Use the geometry you requested
+                message_box.setGeometry(QtCore.QRect(700, 500, 151, 32))
+                
+                # Center it roughly on your monitor setup (from your existing code logic)
+                if hasattr(self, '_monitor'):
+                     message_box.move(int(self._monitor.left() / 1.7), int(self._monitor.top() * 1.5))
+
+                # Get the text for the specific attribute
+                msg_text = self.get_attribute_message(curr_atr)
+                
+                # Show the message
+                QtWidgets.QMessageBox.information(
+                    message_box, 
+                    'New Rating Task', 
+                    msg_text,
+                    QtWidgets.QMessageBox.Ok
+                )
+            # --- NEW LOGIC ENDS HERE ---
 
         print("current attribute ids: ", curr_atr)
         print(self.ssr_ids)

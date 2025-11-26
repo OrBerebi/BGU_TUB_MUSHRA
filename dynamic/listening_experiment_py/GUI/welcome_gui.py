@@ -51,6 +51,12 @@ class Welcome_gui(object):
         # =========================================================
         # SECTION 1: General Information [cite: 4]
         # =========================================================
+
+        # 1.0 Subject ID Code
+        self.subject_code_label = QtWidgets.QLabel()
+        self.subject_code_edit = QtWidgets.QLineEdit()
+        self.subject_code_edit.setMaximumWidth(120)
+        self.add_row(self.subject_code_label, self.subject_code_edit)
         
         # 1.1 Gender [cite: 5]
         self.gender_label = QtWidgets.QLabel()
@@ -210,6 +216,13 @@ class Welcome_gui(object):
         if language == 'english':
             self.start_btn.setText(_translate("SAQI_welcome_gui", "Start"))
             
+            self.subject_code_label.setText(_translate("SAQI_welcome_gui", 
+                "1.0 Personal Code:\n"
+                "First letter of your first name + First letter of mother's first name + "
+                "First letter of father's first name + last digit of your birth year.\n"
+                "(e.g., OMG3 for Oscar, Maggy, Gerald, 2003)"))
+            self.subject_code_edit.setPlaceholderText("e.g. OMG3")
+
             # 1.1 Gender [cite: 9]
             self.gender_label.setText(_translate("SAQI_welcome_gui", "1.1 What gender do you identify with most?"))
             self.gender_combobox.clear()
@@ -222,10 +235,10 @@ class Welcome_gui(object):
             # 1.3 Native Language [cite: 11]
             self.language_label.setText(_translate("SAQI_welcome_gui", "1.3 What is your native language?"))
             self.language_combobox.clear()
-            self.language_combobox.addItems(["German", "English", "French", "Spanish", "Hebrew", "Other"])
+            self.language_combobox.addItems(["English", "German", "Hebrew", "French", "Spanish", "Other"])
 
             # 1.4 German Proficiency [cite: 16]
-            self.german_level_label.setText(_translate("SAQI_welcome_gui", "1.4 Please rate your current level of proficiency in the German language!"))
+            self.german_level_label.setText(_translate("SAQI_welcome_gui", "1.4 Please rate your current level of proficiency in the English language:"))
             self.german_level_combobox.clear()
             self.german_level_combobox.addItems([
                 "Native speaker",

@@ -93,6 +93,7 @@ def aggregate_mat_results(results_folder, output_filename='aggregated_results.cs
     static_info_fields = [
         'subject_id', 
         'participant_id', 
+        'subject_code', 
         'gender', 
         'year_born', 
         'native_language', 
