@@ -184,11 +184,11 @@ class gui(QtWidgets.QMainWindow):
             self.rating_sliders.append(LabeledSlider(
                                        0, 100, steps_per_interval=1, interval=25,
                                        orientation=QtCore.Qt.Vertical,
-                                       labels=('Large (0)',
-                                               '     (25)',
-                                               '     (50)',
-                                               '     (75)',
-                                               'No  (100)')))
+                                       labels=('None       (0)',
+                                               '           (25)',
+                                               '           (50)',
+                                               '           (75)',
+                                               'Very Large (100)')))
             self.rating_sliders[stimuli_idx].setVisible(False)
 
             self.play_pause_btns.append(QtWidgets.QPushButton(self.centralwidget))

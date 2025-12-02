@@ -219,11 +219,11 @@ class MushraMainWindow(MainWindow):
         if active_sliders:  # Only enforce rule if we're in a trial
             results = [slider.value() for slider in active_sliders]
 
-            if 100 not in results:
+            if 0 not in results:
                 QMessageBox.warning(
                     self, 
                     "Incomplete Rating", 
-                    "You need to rate at least one signal 100 before proceeding."
+                    "You need to rate at least one signal 0 before proceeding."
                 )
                 return  # Stop and do not continue
             
@@ -300,7 +300,7 @@ class MushraMainWindow(MainWindow):
             except TypeError:
                 pass
             
-            self._ui.Ref_btn.clicked.connect(partial(self._ssr_handler.play_source_once, [self.ref_ssr_id, self.ref_ssr_id], playing_label=self._ui.current_playing_label, playGifSignal=self._ui.playGifSignal, stopGifSignal=self._ui.stopGifSignal, rewindGifSignal=self._ui.rewindGifSignal))
+            self._ui.Ref_btn.clicked.connect(partial(self._ssr_handler.play_source_once, [self.ref_ssr_id, self.ref_ssr_id], playing_label=self._ui.current_playing_label, playGifSignal=self._ui.playGifSignal, stopGifSignal=self._ui.stopGifSignal, rewindGifSignal=self._ui.rewindGifSignal, is_ref=True))
             self._ui.Ref_btn.setVisible(True)
 
             # Mute button

@@ -97,6 +97,8 @@ class SSRhandler():
         self._osc_client = None
         self._num_sources = num_sources
 
+        self._current_is_ref = False
+
         self.stopGifSignal   = None
         self.rewindGifSignal = None
         self.playGifSignal   = None
@@ -184,7 +186,10 @@ class SSRhandler():
         if bang_type == "bang_1":
             print("Got bang_1 from Pd!")
             if self.stopGifSignal and self.rewindGifSignal and self.playGifSignal and self.playing_label:
-                self.playing_label.setText("Playing Src")
+                if self._current_is_ref:
+                    self.playing_label.setText("Playing Ref")
+                else:
+                    self.playing_label.setText("Playing Src")
                 self.stopGifSignal.emit()
                 self.rewindGifSignal.emit()
                 self.playGifSignal.emit()
@@ -321,12 +326,13 @@ class SSRhandler():
         self._send_xml('<request><state transport="start"/></request>')   # play
     
 
-    def play_source_once(self, src_id, playing_label, playGifSignal, stopGifSignal, rewindGifSignal):
+    def play_source_once(self, src_id, playing_label, playGifSignal, stopGifSignal, rewindGifSignal,is_ref=False):
         """
         Play a pair of sources sequentially: [reference_id, selected_id].
         Each is played from start to finish, with automatic stop after the last source.
         GIF playback is synced with each source.
         """
+        self._current_is_ref = is_ref
         safety_buffer = 0.1
         self.playGifSignal = playGifSignal
         self.stopGifSignal = stopGifSignal
@@ -513,6 +519,7 @@ class SSRhandler():
         # Stop the gif
         stopGifSignal.emit()
         rewindGifSignal.emit()
+        self.playing_label.setText("Playing Non")
 
         if self._connection_state_pd:
             self.pd_send_stop()

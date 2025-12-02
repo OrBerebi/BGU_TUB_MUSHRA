@@ -67,7 +67,19 @@ class MushraMainWindow(MainWindow):
         self.last_button = None
         self.current_attribute_context = None
 
-        self.start_welcome_screen()
+        #self.start_welcome_screen()
+
+        # 1. Initialize the storage list with dummy "Default" values
+        # This prevents "IndexError" if the code tries to access specific indices later
+        self.checked_participant_infos = ["Default"] * 6
+
+        # 2. Pass this dummy data to the experiment handler
+        # This ensures the results writer has data to write and doesn't crash
+        self._experiment_handler.set_participant_infos(self.checked_participant_infos)
+
+        # 3. Immediately start the main experiment, bypassing the login GUI
+        self.start_main_experiment_screen()
+
     
     def get_attribute_message(self, attribute):
         """Returns the specific instruction text based on the attribute."""
@@ -137,6 +149,7 @@ class MushraMainWindow(MainWindow):
                             experiment_name=""))
 
         # callbacks
+
         self._ui.age_combobox.activated.connect(lambda:
                                                 self.set_participant_infos(0))
         self._ui.gender_combobox.activated.connect(
@@ -306,11 +319,11 @@ class MushraMainWindow(MainWindow):
         if active_sliders:  # Only enforce rule if we're in a trial
             results = [slider.value() for slider in active_sliders]
 
-            if 100 not in results:
+            if 0 not in results:
                 QMessageBox.warning(
                     self, 
                     "Incomplete Rating", 
-                    "You need to rate at least one signal 100 before proceeding."
+                    "You need to rate at least one signal 0 before proceeding."
                 )
                 return  # Stop and do not continue
             
@@ -358,29 +371,71 @@ class MushraMainWindow(MainWindow):
             # Check if the attribute has changed from the last trial
             if curr_atr != self.current_attribute_context:
                 
-                # Update the tracker so it doesn't pop up again for the same attribute
+                # Update the tracker
                 self.current_attribute_context = curr_atr
                 
-                # Create the Popup
-                message_box = QtWidgets.QMessageBox()
-                
-                # Use the geometry you requested
-                message_box.setGeometry(QtCore.QRect(700, 500, 151, 32))
-                
-                # Center it roughly on your monitor setup (from your existing code logic)
-                if hasattr(self, '_monitor'):
-                     message_box.move(int(self._monitor.left() / 1.7), int(self._monitor.top() * 1.5))
-
                 # Get the text for the specific attribute
                 msg_text = self.get_attribute_message(curr_atr)
+
+                # --- CUSTOM FULL SCREEN DIALOG ---
+                dialog = QtWidgets.QDialog(self)
+                dialog.setWindowTitle("New Rating Task")
                 
-                # Show the message
-                QtWidgets.QMessageBox.information(
-                    message_box, 
-                    'New Rating Task', 
-                    msg_text,
-                    QtWidgets.QMessageBox.Ok
-                )
+                # Remove window frame/borders for a clean look
+                dialog.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
+                
+                # Set a dark background style to match your theme
+                dialog.setStyleSheet("""
+                    QDialog { background-color: #2b2b2b; }
+                    QLabel { color: white; }
+                    QPushButton { 
+                        background-color: #555555; 
+                        color: white; 
+                        border: 2px solid #888; 
+                        border-radius: 10px;
+                        padding: 15px;
+                        font-size: 20pt;
+                    }
+                    QPushButton:hover { background-color: #777777; }
+                """)
+
+                # Create Layout
+                layout = QtWidgets.QVBoxLayout(dialog)
+                layout.setContentsMargins(50, 50, 50, 50)
+                layout.setSpacing(50)
+
+                # 1. Title Label (Huge)
+                title_label = QtWidgets.QLabel("New Rating Task")
+                title_label.setAlignment(QtCore.Qt.AlignCenter)
+                title_label.setStyleSheet("font-size: 50pt; font-weight: bold; color: #ffae00;") # Gold color
+                layout.addWidget(title_label)
+
+                # 2. Description Label (Large)
+                desc_label = QtWidgets.QLabel(msg_text)
+                desc_label.setAlignment(QtCore.Qt.AlignCenter)
+                desc_label.setWordWrap(True)
+                desc_label.setStyleSheet("font-size: 30pt;") # Make text readable on full screen
+                layout.addWidget(desc_label)
+
+                # 3. OK Button
+                btn_ok = QtWidgets.QPushButton("I Understand - Start Task")
+                btn_ok.setFixedWidth(400) # Keep button from stretching too wide
+                btn_ok.clicked.connect(dialog.accept)
+                
+                # Center the button in the layout
+                btn_layout = QtWidgets.QHBoxLayout()
+                btn_layout.addStretch()
+                btn_layout.addWidget(btn_ok)
+                btn_layout.addStretch()
+                layout.addLayout(btn_layout)
+
+                # Ensure it opens on the correct monitor
+                if hasattr(self, '_monitor'):
+                    dialog.setGeometry(self._monitor)
+
+                # Show full screen and block execution until clicked
+                dialog.showFullScreen()
+                dialog.exec_()
             # --- NEW LOGIC ENDS HERE ---
 
 
