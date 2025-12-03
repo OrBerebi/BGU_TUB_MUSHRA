@@ -53,10 +53,24 @@ class MushraMainWindow(MainWindow):
         self.start_welcome_screen()
     
 
+        
     def get_attribute_message(self, attribute):
         """Returns the specific instruction text based on the attribute."""
         
-        # You can customize these texts based on your specific experiment attributes
+        # 1. Define the General MUSHRA Instructions (Difference Rating)
+        mushra_instructions = (
+            "General Instructions:\n"
+            "You are rating the difference between the Reference signal and the Test signals.\n\n"
+            "• Rate 0: No Difference perceived (signal is identical to Reference).\n"
+            "• Rate 100: Very Large Difference perceived.\n\n"
+            "Playback Behavior:\n"
+            "When you select a test signal, you will first hear the Reference, followed immediately by the Test signal.\n\n"
+            "Note: There is always a hidden reference (identical to the original) among the test signals. "
+            "Therefore, at least one signal must be rated 0. "
+            "If you are unsure which signal is the hidden reference, you may rate multiple signals as 0."
+        )
+
+        # 2. Your specific attribute descriptions
         descriptions = {
             "Coloration": (
                 "Task: Rate the Coloration differences.\n\n"
@@ -78,9 +92,13 @@ class MushraMainWindow(MainWindow):
             )
         }
         
-        # Return the specific description, or a default message if the attribute isn't in the dict
-        return descriptions.get(attribute, f"The rating attribute has changed.\n\nPlease now rate the signals in terms of: {attribute}")
+        # 3. Retrieve the specific text
+        specific_text = descriptions.get(attribute, f"The rating attribute has changed.\n\nPlease now rate the signals in terms of: {attribute}")
 
+        # 4. Combine them with a double space
+        return f"{specific_text}\n\n{mushra_instructions}"
+        
+    
     def keyPressEvent(self, event):
         key = event.key()
         
@@ -200,11 +218,15 @@ class MushraMainWindow(MainWindow):
         self.update_gui()
 
     def start_goodby_screen(self):
+        self.close_app()
+        
+        """
         self._ui = goodbye_gui()
         self._ui.setupUi(self, self._language,
                          footer=FooterTUB_THK_Chalmers(
                             experiment_name=""))
         self._ui.finish_btn.clicked.connect(self.close_app)
+        """
 
     def next_trial(self):
         # mute ssr sources
@@ -263,29 +285,71 @@ class MushraMainWindow(MainWindow):
             # Check if the attribute has changed from the last trial
             if curr_atr != self.current_attribute_context:
                 
-                # Update the tracker so it doesn't pop up again for the same attribute
+                # Update the tracker
                 self.current_attribute_context = curr_atr
                 
-                # Create the Popup
-                message_box = QtWidgets.QMessageBox()
-                
-                # Use the geometry you requested
-                message_box.setGeometry(QtCore.QRect(700, 500, 151, 32))
-                
-                # Center it roughly on your monitor setup (from your existing code logic)
-                if hasattr(self, '_monitor'):
-                     message_box.move(int(self._monitor.left() / 1.7), int(self._monitor.top() * 1.5))
-
                 # Get the text for the specific attribute
                 msg_text = self.get_attribute_message(curr_atr)
+
+                # --- CUSTOM FULL SCREEN DIALOG ---
+                dialog = QtWidgets.QDialog(self)
+                dialog.setWindowTitle("New Rating Task")
                 
-                # Show the message
-                QtWidgets.QMessageBox.information(
-                    message_box, 
-                    'New Rating Task', 
-                    msg_text,
-                    QtWidgets.QMessageBox.Ok
-                )
+                # Remove window frame/borders for a clean look
+                dialog.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.FramelessWindowHint)
+                
+                # Set a dark background style to match your theme
+                dialog.setStyleSheet("""
+                    QDialog { background-color: #2b2b2b; }
+                    QLabel { color: white; }
+                    QPushButton { 
+                        background-color: #555555; 
+                        color: white; 
+                        border: 2px solid #888; 
+                        border-radius: 10px;
+                        padding: 15px;
+                        font-size: 20pt;
+                    }
+                    QPushButton:hover { background-color: #777777; }
+                """)
+
+                # Create Layout
+                layout = QtWidgets.QVBoxLayout(dialog)
+                layout.setContentsMargins(50, 50, 50, 50)
+                layout.setSpacing(50)
+
+                # 1. Title Label (Huge)
+                title_label = QtWidgets.QLabel("New Rating Task")
+                title_label.setAlignment(QtCore.Qt.AlignCenter)
+                title_label.setStyleSheet("font-size: 50pt; font-weight: bold; color: #ffae00;") # Gold color
+                layout.addWidget(title_label)
+
+                # 2. Description Label (Large)
+                desc_label = QtWidgets.QLabel(msg_text)
+                desc_label.setAlignment(QtCore.Qt.AlignCenter)
+                desc_label.setWordWrap(True)
+                desc_label.setStyleSheet("font-size: 21pt;") # Make text readable on full screen
+                layout.addWidget(desc_label)
+
+                # 3. OK Button
+                btn_ok = QtWidgets.QPushButton("I Understand - Start Task")
+                btn_ok.setFixedWidth(400) # Keep button from stretching too wide
+                btn_ok.clicked.connect(dialog.accept)
+                
+                # Center the button in the layout
+                btn_layout = QtWidgets.QHBoxLayout()
+                btn_layout.addStretch()
+                btn_layout.addWidget(btn_ok)
+                btn_layout.addStretch()
+                layout.addLayout(btn_layout)
+
+                # Ensure it opens on the correct monitor
+                if hasattr(self, '_monitor'):
+                    dialog.setGeometry(self._monitor)
+
+                # Show full screen and block execution until clicked
+                dialog.showFullScreen()
+                dialog.exec_()
             # --- NEW LOGIC ENDS HERE ---
 
         print("current attribute ids: ", curr_atr)
@@ -319,7 +383,7 @@ class MushraMainWindow(MainWindow):
                                self._ui.rating_sliders):
             btn.setVisible(False)
             slider.setVisible(False)
-            slider.setValue(50)
+            slider.setValue(0)
 
         for p_btn, m_btn in zip(self._ui.plus_btns,
                                 self._ui.minus_btns):

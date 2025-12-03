@@ -182,10 +182,10 @@ class gui(QtWidgets.QMainWindow):
                                         'the following music items?')
         else:
             if self.language == 'english':
-                self.task_label.setText('First part of the experiment '
+                self.task_label.setText('Second part of the experiment '
                                         'completed, continue by clicking the '
                                         'next button.')
             elif self.language == 'german':
-                self.task_label.setText('First part of the experiment '
+                self.task_label.setText('Second part of the experiment '
                                         'completed, continue by clicking the '
                                         'next button.')

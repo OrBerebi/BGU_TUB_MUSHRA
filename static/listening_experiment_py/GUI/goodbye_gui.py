@@ -4,23 +4,14 @@ from .. GUI.utils import Footer
 
 class goodbye_gui(object):
     def setupUi(self, ui, language='english', footer=None):
-        """
-        Listening Experiment Py: SAQI - A Spatial Audio Inventory
-
-        (C) 2021 by Tim Lübeck
-                TH Köln - University of Applied Sciences
-                Institute of Communications Engineering
-                Department of Acoustics and Audio Signal Processing
-
-        Parameters
-        ----------
-        SAQI_goodbye_gui
-        """
         if footer is None:
             footer = Footer(experiment_name="")
 
         ui.setObjectName("goodbye_gui")
-        ui.resize(1024, 768)
+        
+        # --- FIX 1: Comment out or remove this line ---
+        # ui.resize(1024, 768) 
+        # ----------------------------------------------
 
         self.centralwidget = QtWidgets.QWidget(ui)
         self.centralwidget.setObjectName("centralwidget")
@@ -44,8 +35,14 @@ class goodbye_gui(object):
         self.finish_btn.setObjectName("start_btn")
 
         main_layout.addWidget(self.frame)
-        main_layout.addWidget(self.task_label, QtCore.Qt.AlignCenter)
-        main_layout.addWidget(self.finish_btn, QtCore.Qt.AlignCenter)
+        
+        # --- FIX 2: Add spacers to center content vertically ---
+        main_layout.addStretch() 
+        main_layout.addWidget(self.task_label, alignment=QtCore.Qt.AlignCenter)
+        main_layout.addWidget(self.finish_btn, alignment=QtCore.Qt.AlignCenter)
+        main_layout.addStretch()
+        # -------------------------------------------------------
+
         # add footer
         main_layout.addLayout(footer)
 

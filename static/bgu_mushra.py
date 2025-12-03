@@ -196,7 +196,8 @@ def main():
     # Gui_main_comp.showFullScreen()
 
     # show GUI
-    gui_comp.show()
+    #gui_comp.show()
+    gui_comp.showFullScreen()
     sys.exit(app.exec_())
 
 

@@ -84,7 +84,18 @@ class MushraMainWindow(MainWindow):
     def get_attribute_message(self, attribute):
         """Returns the specific instruction text based on the attribute."""
         
-        # You can customize these texts based on your specific experiment attributes
+        # 1. Define the General MUSHRA Instructions (Difference Rating)
+        mushra_instructions = (
+            "General Instructions:\n"
+            "You are rating the difference between the Reference signal and the Test signals.\n\n"
+            "• Rate 0: No Difference perceived (signal is identical to Reference).\n"
+            "• Rate 100: Very Large Difference perceived.\n\n"
+            "Note: There is always a hidden reference (identical to the original) among the test signals. "
+            "Therefore, at least one signal must be rated 0. "
+            "If you are unsure which signal is the hidden reference, you may rate multiple signals as 0."
+        )
+
+        # 2. Your specific attribute descriptions
         descriptions = {
             "Coloration": (
                 "Task: Rate the Coloration differences.\n\n"
@@ -106,9 +117,11 @@ class MushraMainWindow(MainWindow):
             )
         }
         
-        # Return the specific description, or a default message if the attribute isn't in the dict
-        return descriptions.get(attribute, f"The rating attribute has changed.\n\nPlease now rate the signals in terms of: {attribute}")
+        # 3. Retrieve the specific text
+        specific_text = descriptions.get(attribute, f"The rating attribute has changed.\n\nPlease now rate the signals in terms of: {attribute}")
 
+        # 4. Combine them with a double space
+        return f"{specific_text}\n\n{mushra_instructions}"
 
     def keyPressEvent(self, event):
         key = event.key()
@@ -360,8 +373,8 @@ class MushraMainWindow(MainWindow):
         
 
         if len(self.ssr_ids) == 0:
-            #curr_atr = "finish"
-            #self.ref_ssr_id = 0
+            curr_atr = "finish"
+            self.ref_ssr_id = 0
             self._ui.print_task("poo",finish=True)
         else:
             #curr_atr = self._experiment_handler.get_current_attributes()
@@ -414,7 +427,7 @@ class MushraMainWindow(MainWindow):
                 desc_label = QtWidgets.QLabel(msg_text)
                 desc_label.setAlignment(QtCore.Qt.AlignCenter)
                 desc_label.setWordWrap(True)
-                desc_label.setStyleSheet("font-size: 30pt;") # Make text readable on full screen
+                desc_label.setStyleSheet("font-size: 21pt;") # Make text readable on full screen
                 layout.addWidget(desc_label)
 
                 # 3. OK Button
@@ -480,7 +493,7 @@ class MushraMainWindow(MainWindow):
                                self._ui.rating_sliders):
             btn.setVisible(False)
             slider.setVisible(False)
-            slider.setValue(50)
+            slider.setValue(0)
 
         for p_btn, m_btn in zip(self._ui.plus_btns,
                                 self._ui.minus_btns):

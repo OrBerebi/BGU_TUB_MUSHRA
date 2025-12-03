@@ -333,11 +333,11 @@ class SSRhandler():
         GIF playback is synced with each source.
         """
         self._current_is_ref = is_ref
-        safety_buffer = 0.1
-        self.playGifSignal = playGifSignal
-        self.stopGifSignal = stopGifSignal
+        safety_buffer        = 0.1
+        self.playGifSignal   = playGifSignal
+        self.stopGifSignal   = stopGifSignal
         self.rewindGifSignal = rewindGifSignal
-        self.playing_label = playing_label
+        self.playing_label   = playing_label
 
         # --- Helper to start a stereo source ---
         def _start_source(s_id, delay_gif=False):
@@ -519,7 +519,8 @@ class SSRhandler():
         # Stop the gif
         stopGifSignal.emit()
         rewindGifSignal.emit()
-        self.playing_label.setText("Playing Non")
+        if self.playing_label is not None:
+            self.playing_label.setText("Playing Non")
 
         if self._connection_state_pd:
             self.pd_send_stop()
