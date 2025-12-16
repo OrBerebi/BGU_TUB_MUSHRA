@@ -99,8 +99,8 @@ class MushraMainWindow(MainWindow):
         descriptions = {
             "Coloration": (
                 "Task: Rate the Coloration differences.\n\n"
-                "Coloration refers to the timbral quality and spectral balance of the sound. "
-                "You should detect if the test signal sounds 'brighter,' 'duller,' "
+                "Coloration refers to differences between two sound with respect to their timbre / spectral content. "
+                "You should, for example, detect if the test signal sounds brighter or darker, "
                 "or has unnatural resonances compared to the reference."
             ),
             "Source Position": (
